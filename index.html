@@ -1,0 +1,3307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Yacht Rockin' Radio" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a1628" />
+  <meta name="description" content="Yacht Rockin' Radio — WYRR-DB. Smooth sailing music, all day long. yachtrockinradio.com" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png" />
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/icon-120.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png" />
+  <title>Yacht Rockin' Radio</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:    #0a1628;
+      --deep:    #06101e;
+      --mid:     #0d1f36;
+      --gold:    #c8a84b;
+      --cream:   #f5ede0;
+      --teal:    #1a9e8f;
+      --sky:     #5bb8d4;
+      --muted:   #8a9ab5;
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left:   env(safe-area-inset-left, 0px);
+      --safe-right:  env(safe-area-inset-right, 0px);
+      /* ── Skin tokens — override these per skin ── */
+      --skin-bg1:       #06101e;   /* deep background */
+      --skin-bg2:       #0a1628;   /* nav background */
+      --skin-accent1:   #1a9e8f;   /* primary accent (teal) */
+      --skin-accent2:   #5bb8d4;   /* secondary accent (sky) */
+      --skin-gold:      #c8a84b;   /* gold highlight */
+      --skin-disc-bg:   conic-gradient(#0d2240 0deg,#1a3a5c 60deg,#0a1628 120deg,#1a3a5c 180deg,#0d2240 240deg,#0a1628 300deg,#0d2240 360deg);
+      --skin-play-btn:  linear-gradient(145deg,#1a9e8f,#128a7d);
+    }
+    /* ── Skin: Flamingo Friday (hot pink/coral) ── */
+    body[data-skin="flamingo"] {
+      --skin-bg1:      #1a0812;
+      --skin-bg2:      #2a0f1e;
+      --skin-accent1:  #e8457a;
+      --skin-accent2:  #f7a8c0;
+      --skin-gold:     #f7c948;
+      --skin-disc-bg:  conic-gradient(#2a0f1e 0deg,#3d1530 60deg,#1a0812 120deg,#3d1530 180deg,#2a0f1e 240deg,#1a0812 300deg,#2a0f1e 360deg);
+      --skin-play-btn: linear-gradient(145deg,#e8457a,#c03060);
+    }
+    /* ── Skin: Mediterranean Monday (azure/terracotta) ── */
+    body[data-skin="mediterranean"] {
+      --skin-bg1:      #0a1a2e;
+      --skin-bg2:      #0d2240;
+      --skin-accent1:  #2e8bc0;
+      --skin-accent2:  #e07b4a;
+      --skin-gold:     #f0c060;
+      --skin-disc-bg:  conic-gradient(#0d2240 0deg,#1a3a5c 60deg,#0a1a2e 120deg,#1a3a5c 180deg,#0d2240 240deg,#0a1a2e 300deg,#0d2240 360deg);
+      --skin-play-btn: linear-gradient(145deg,#2e8bc0,#1a6090);
+    }
+    /* ── Skin: Thin Crust Thursday (warm amber/brown) ── */
+    body[data-skin="thinCrust"] {
+      --skin-bg1:      #1a1008;
+      --skin-bg2:      #2a1c0e;
+      --skin-accent1:  #c8882a;
+      --skin-accent2:  #e8b86a;
+      --skin-gold:     #f0d080;
+      --skin-disc-bg:  conic-gradient(#2a1c0e 0deg,#3d2a10 60deg,#1a1008 120deg,#3d2a10 180deg,#2a1c0e 240deg,#1a1008 300deg,#2a1c0e 360deg);
+      --skin-play-btn: linear-gradient(145deg,#c8882a,#a06018);
+    }
+
+    /* ══════════════════════════════════════════════
+       MEGAYACHT — GAME TIME  (Mattel Football feel)
+       All selectors use body[data-skin="gameTime"]
+       so cascade works correctly from <body>.
+       ══════════════════════════════════════════════ */
+    body[data-skin="gameTime"] {
+      --gt-cream:   #e8e0d0;
+      --gt-cream2:  #d8d0c0;
+      --gt-panel:   #1a1a1a;
+      --gt-blue:    #2244cc;
+      --gt-orange:  #e86020;
+      --gt-red:     #cc2020;
+      --gt-shadow:  #0a1a80;
+      background: var(--gt-cream);
+      color: #1a1a1a;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body[data-skin="gameTime"] #app            { background: var(--gt-cream); }
+    body[data-skin="gameTime"] #app::before    { display: none; }
+
+    /* ── Blue Mattel label bar (topbar) ── */
+    body[data-skin="gameTime"] .topbar {
+      background: var(--gt-blue);
+      border-bottom: 3px solid var(--gt-shadow);
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+      box-shadow: 0 3px 0 var(--gt-shadow);
+    }
+    body[data-skin="gameTime"] .tb-name   { color: #fff; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; font-size: 13px; }
+    body[data-skin="gameTime"] .tb-sub    { color: #a0b8ff; letter-spacing: 0.18em; }
+    body[data-skin="gameTime"] .tb-icon   { background: #0a1a1a; border-color: #334; }
+    body[data-skin="gameTime"] .live-badge { color: #ff4444; }
+    body[data-skin="gameTime"] .live-dot   { background: #ff4444; box-shadow: 0 0 6px #ff4444; }
+    body[data-skin="gameTime"] .menu-btn   { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); }
+    body[data-skin="gameTime"] .menu-btn span { background: #fff; }
+
+    /* ── Art zone — cream body ── */
+    body[data-skin="gameTime"] .art-zone   { background: var(--gt-cream); padding: 8px 18px 4px; }
+
+    /* ── Oval stadium — replaces disc ── */
+    body[data-skin="gameTime"] .art-disc {
+      width: min(290px, 80vw);
+      height: min(145px, 40vw);
+      border-radius: 999px;
+      /* Cream plastic concentric rings like the original */
+      background: var(--gt-cream2);
+      border: none;
+      box-shadow:
+        0 0 0 6px #c8c0b0,
+        0 0 0 11px #b8b0a0,
+        0 0 0 15px #a8a090,
+        0 0 0 18px #988880;
+      animation: none;
+      overflow: visible;
+      position: relative;
+      flex-shrink: 0;
+    }
+    body[data-skin="gameTime"] .art-disc.spinning { animation: none; }
+    body[data-skin="gameTime"] .art-disc::after   { display: none; }
+    body[data-skin="gameTime"] .art-disc-inner    { display: none; }
+    body[data-skin="gameTime"] #vizCanvas         { display: none; }
+    body[data-skin="gameTime"] .disc-track-overlay { display: none; }
+
+    /* Score header strip above the green field (DOWN / FIELD POSITION / YARDS TO GO) */
+    #gtScoreHeader {
+      position: absolute;
+      top: 0; left: 12px; right: 12px;
+      height: 22px;
+      background: var(--gt-cream2);
+      border-radius: 4px 4px 0 0;
+      display: none;
+      align-items: center;
+      justify-content: space-around;
+      font-size: 8px;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #4a4a3a;
+      padding: 0 4px;
+      z-index: 10;
+    }
+    body[data-skin="gameTime"] #gtScoreHeader { display: flex; }
+    .gt-hdr-val { color: #cc2020; font-family: 'Courier New', monospace; }
+
+    /* Green LED field oval inset */
+    #gtFieldOval {
+      position: absolute;
+      top: 22px; left: 12px; right: 12px; bottom: 4px;
+      border-radius: 0 0 999px 999px / 0 0 60px 60px;
+      background: #1a6020;
+      border: 2px solid #0a3a10;
+      overflow: hidden;
+      display: none;
+      z-index: 5;
+    }
+    body[data-skin="gameTime"] #gtFieldOval { display: block; }
+
+    /* End zone markers */
+    #gtFieldOval::before {
+      content: '';
+      position: absolute; top: 0; bottom: 0;
+      left: 8%; width: 2px; background: rgba(255,255,255,0.4);
+    }
+    #gtFieldOval::after {
+      content: '';
+      position: absolute; top: 0; bottom: 0;
+      right: 8%; width: 2px; background: rgba(255,255,255,0.4);
+    }
+
+    /* LED dot grid inside field */
+    #gtLedGrid {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 6; pointer-events: none;
+    }
+    #gtLedInner {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 2px;
+      padding: 4px 14px;
+      width: 100%; height: 100%;
+    }
+    .gt-led { border-radius: 1px; background: #0a3a10; transition: background 0.07s; }
+    .gt-led.gt-def    { background: #cc2020; }
+    .gt-led.gt-player { background: #ffffff; box-shadow: 0 0 3px #fff; }
+    .gt-led.gt-flash  { background: #ffcc00; }
+
+    /* Yard line marks */
+    #gtYardLines {
+      position: absolute; inset: 0;
+      display: none; pointer-events: none; z-index: 4;
+    }
+    body[data-skin="gameTime"] #gtYardLines { display: block; }
+
+    /* Status bar below oval */
+    #gtStatusBar {
+      display: none;
+      background: #0a0a0a;
+      border-radius: 4px;
+      margin: 20px 18px 2px;
+      padding: 4px 10px;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Courier New', monospace;
+      font-size: 9px;
+      color: #e8a820;
+      letter-spacing: 0.05em;
+    }
+    body[data-skin="gameTime"] #gtStatusBar { display: flex; }
+    .gt-sv { color: #ff4040; font-weight: 700; }
+
+    /* Track info — LED readout style */
+    body[data-skin="gameTime"] .track-info {
+      margin-top: 4px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 0;
+    }
+    body[data-skin="gameTime"] .track-title {
+      font-family: 'Courier New', monospace;
+      font-size: clamp(12px, 3.5vw, 17px);
+      color: #ff2020; background: #0a0a0a;
+      padding: 5px 14px; border-radius: 4px 4px 0 0;
+      letter-spacing: 0.07em; font-weight: 700;
+      display: block; width: 100%;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    body[data-skin="gameTime"] .track-artist {
+      font-family: 'Courier New', monospace;
+      color: #ff6060; font-size: clamp(10px, 2.6vw, 12px);
+      background: #0a0a0a; padding: 2px 14px 5px;
+      border-radius: 0 0 4px 4px;
+      display: block; width: 100%;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    body[data-skin="gameTime"] .track-loading {
+      font-family: 'Courier New', monospace; color: #882020;
+      background: #0a0a0a; padding: 4px 10px; border-radius: 4px;
+    }
+    body[data-skin="gameTime"] .amz-btn { display: none !important; }
+
+    /* Now-playing strip */
+    body[data-skin="gameTime"] .nowplaying-strip {
+      background: #0a0a0a;
+      border-top: 2px solid #222; border-bottom: 2px solid #222;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    body[data-skin="gameTime"] .np-label  { color: #cc2020; font-family: 'Courier New', monospace; }
+    body[data-skin="gameTime"] .np-dot    { color: #cc2020; }
+    body[data-skin="gameTime"] .np-title  { color: #ff2020; font-family: 'Courier New', monospace; }
+    body[data-skin="gameTime"] .np-artist { color: #ff6060; font-family: 'Courier New', monospace; }
+    body[data-skin="gameTime"] .np-idle   { color: #882020; font-family: 'Courier New', monospace; }
+
+    /* Controls dock — cream plastic base */
+    body[data-skin="gameTime"] .controls-dock {
+      background: var(--gt-cream2);
+      border-top: 3px solid #a8a090;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+      padding-bottom: 6px;
+    }
+    /* Volume slider uses blue fill */
+    body[data-skin="gameTime"] .vol-icon { display: none; }
+    body[data-skin="gameTime"] .vol-pct  { color: #3a3a2a; font-family: 'Courier New', monospace; font-weight: 700; }
+    body[data-skin="gameTime"] input[type=range].vol-slider {
+      background: linear-gradient(to right, #2244cc 0%, #2244cc var(--vol,80%), #9a9080 var(--vol,80%), #9a9080 100%);
+      height: 6px;
+    }
+    body[data-skin="gameTime"] input[type=range].vol-slider::-webkit-slider-thumb { background: #1a1a1a; border-color: #444; }
+    body[data-skin="gameTime"] input[type=range].vol-slider::-moz-range-thumb { background: #1a1a1a; border-color: #444; }
+
+    /* Standard play/mute/refresh — blue molded buttons, keep all normal functions */
+    body[data-skin="gameTime"] .btn-secondary {
+      background: #2244cc; border: 2px solid #0a1a80; border-radius: 7px;
+      color: #fff; box-shadow: 0 4px 0 #0a1a80;
+    }
+    body[data-skin="gameTime"] .btn-secondary:active { box-shadow: 0 1px 0 #0a1a80; transform: scale(0.95) translateY(2px); }
+    body[data-skin="gameTime"] .btn-play {
+      background: linear-gradient(180deg, #e86020, #c04810);
+      border-radius: 7px; box-shadow: 0 5px 0 #7a2808;
+    }
+    body[data-skin="gameTime"] .btn-play:active { box-shadow: 0 2px 0 #7a2808; transform: scale(0.95) translateY(3px); }
+    body[data-skin="gameTime"] .btn-play.loading { background: #888070; box-shadow: 0 4px 0 #555048; }
+    body[data-skin="gameTime"] .status-bar .dot      { background: #888070; }
+    body[data-skin="gameTime"] .status-bar .dot.live { background: #cc2020; box-shadow: 0 0 5px #cc2020; }
+    body[data-skin="gameTime"] #statusTxt  { color: #5a5a4a; font-family: 'Courier New', monospace; font-weight: 700; }
+    body[data-skin="gameTime"] .sleep-btn  { color: #5a5a4a; }
+    body[data-skin="gameTime"] .sleep-btn.active { color: #cc2020; }
+    body[data-skin="gameTime"] .err-bar    { background: rgba(200,32,32,0.12); border-color: rgba(200,32,32,0.3); color: #cc2020; }
+
+    /* ── Black button panel — game controls ── */
+    #gtPanel {
+      display: none;
+      background: #1a1a1a;
+      border-radius: 10px;
+      margin: 6px 14px 4px;
+      padding: 12px 14px 10px;
+      flex-direction: column;
+      gap: 8px;
+    }
+    body[data-skin="gameTime"] #gtPanel { display: flex; }
+
+    .gt-btn-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    .gt-btn {
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Arial, sans-serif; font-weight: 900;
+      letter-spacing: 0.06em; color: #fff;
+      transition: transform 0.08s, box-shadow 0.08s;
+      -webkit-tap-highlight-color: transparent;
+      border-radius: 7px;
+    }
+    .gt-btn:active { transform: translateY(3px); }
+
+    /* ST / SC — blue squares, left column */
+    .gt-btn-blue { width: 46px; height: 46px; font-size: 13px; background: #2244cc; border: 2px solid #0a1a80; box-shadow: 0 4px 0 #0a1a80; }
+    .gt-btn-blue:active { box-shadow: 0 1px 0 #0a1a80; }
+    /* K — smaller blue */
+    .gt-btn-k { width: 38px; height: 38px; font-size: 13px; background: #2244cc; border: 2px solid #0a1a80; box-shadow: 0 3px 0 #0a1a80; }
+    .gt-btn-k:active { box-shadow: 0 1px 0 #0a1a80; }
+    /* Hike/forward — orange center */
+    .gt-btn-orange { width: 52px; height: 52px; font-size: 22px; background: #e86020; border: 2px solid #7a2808; box-shadow: 0 5px 0 #7a2808; }
+    .gt-btn-orange:active { box-shadow: 0 2px 0 #7a2808; }
+    /* Up/Down — red right column */
+    .gt-btn-red { width: 46px; height: 44px; font-size: 16px; background: #cc2020; border: 2px solid #6a0808; box-shadow: 0 3px 0 #6a0808; }
+    .gt-btn-red:active { box-shadow: 0 1px 0 #6a0808; }
+
+    /* Pro 1 / Off / Pro 2 toggle row */
+    .gt-toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 2px 4px 0;
+    }
+    .gt-toggle-label { font-size: 8px; color: #888; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .gt-toggle-track { width: 48px; height: 10px; background: #444; border-radius: 2px; border: 1px solid #555; position: relative; }
+    .gt-toggle-thumb { position: absolute; left: 50%; top: 1px; transform: translateX(-50%); width: 18px; height: 8px; background: #888; border-radius: 1px; }
+
+    /* GT message */
+    #gtMsg {
+      display: none; text-align: center;
+      font-family: 'Courier New', monospace; font-size: 11px; font-weight: 700;
+      color: #ffcc00; letter-spacing: 0.08em;
+      background: rgba(0,0,0,0.82); padding: 3px 10px; border-radius: 4px;
+      margin: 2px 14px 0;
+    }
+    body[data-skin="gameTime"] #gtMsg.show { display: block; }
+
+    /* Result overlay — sits inside the oval field, clipped to its shape */
+    #gtResultMsg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Courier New', monospace; font-size: 14px; font-weight: 700;
+      letter-spacing: 0.12em; z-index: 15; pointer-events: none;
+      opacity: 0; transition: opacity 0.15s ease;
+    }
+    #gtResultMsg.gt-result-show { opacity: 1; }
+    #gtResultMsg.gt-result-td { color: #5aff70; background: rgba(0,0,0,0.72); }
+    #gtResultMsg.gt-result-to { color: #ff4444; background: rgba(0,0,0,0.72); }
+
+    /* Field flash animation — runs on #gtFieldOval when result fires */
+    @keyframes gtFieldFlash {
+      0%,100% { background: #1a6020; }
+      25%      { background: #4adf60; }
+      75%      { background: #0d4015; }
+    }
+    #gtFieldOval.gt-flashing { animation: gtFieldFlash 0.5s ease-in-out 3; }
+
+    /* Embossed emblem + YACHT ROCK badge row */
+    #gtFooterRow {
+      display: none;
+      align-items: center; justify-content: space-between;
+      padding: 4px 16px 2px;
+    }
+    body[data-skin="gameTime"] #gtFooterRow { display: flex; }
+    /* Embossed flamingo placeholder — SVG inline */
+    .gt-emblem {
+      width: 56px; height: 56px;
+      background: var(--gt-cream2);
+      border-radius: 50%;
+      border: 2px solid #b8b0a0;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.6);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0.75;
+    }
+    .gt-badge {
+      background: #2244cc; color: #fff;
+      font-size: 13px; font-weight: 900; letter-spacing: 0.14em;
+      padding: 6px 20px; border-radius: 7px;
+      border: 2px solid #0a1a80; box-shadow: 0 3px 0 #0a1a80;
+      text-transform: uppercase; font-family: Arial, sans-serif;
+    }
+
+    /* Drawer — cream overrides */
+    body[data-skin="gameTime"] .drawer           { background: linear-gradient(180deg, #d8d0c0, #c8c0b0); border-left-color: #a8a090; }
+    body[data-skin="gameTime"] .drawer-head      { border-bottom-color: rgba(0,0,0,0.15); }
+    body[data-skin="gameTime"] .drawer-title     { color: #1a1a1a; }
+    body[data-skin="gameTime"] .drawer-sub       { color: #2244cc; }
+    body[data-skin="gameTime"] .drawer-nav a     { color: #3a3a2a; }
+    body[data-skin="gameTime"] .drawer-nav a:hover { color: #1a1a1a; background: rgba(0,0,0,0.06); border-left-color: #cc2020; }
+    body[data-skin="gameTime"] .drawer-divider   { background: rgba(0,0,0,0.12); }
+    body[data-skin="gameTime"] .drawer-footer    { color: #6a6a5a; }
+    body[data-skin="gameTime"] .drawer-overlay   { background: rgba(0,0,0,0.35); }
+    body[data-skin="gameTime"] .drawer-recents-title { color: #2244cc; }
+    body[data-skin="gameTime"] .recent-title     { color: #1a1a1a; }
+    body[data-skin="gameTime"] .recent-artist    { color: #5a5a4a; }
+
+    /* ── Skin switcher ── */
+    .skin-switcher-section { padding: 4px 0 8px; }
+    .skin-switcher-label {
+      padding: 10px 22px 6px; color: var(--gold);
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      font-family: Arial, sans-serif; display: flex; align-items: center; gap: 8px;
+    }
+    .skin-switcher-label::after { content: ''; flex: 1; height: 1px; background: rgba(200,168,75,0.22); }
+    body[data-skin="gameTime"] .skin-switcher-label { color: #2244cc; }
+    body[data-skin="gameTime"] .skin-switcher-label::after { background: rgba(34,68,204,0.22); }
+
+    .skin-row { display: flex; align-items: center; gap: 12px; padding: 10px 22px; cursor: pointer; transition: background 0.18s; -webkit-tap-highlight-color: transparent; }
+    .skin-row:hover { background: rgba(255,255,255,0.05); }
+    body[data-skin="gameTime"] .skin-row:hover { background: rgba(0,0,0,0.06); }
+    .skin-row.skin-active { border-left: 3px solid var(--teal); padding-left: 19px; }
+    body[data-skin="gameTime"] .skin-row.skin-active { border-left-color: #2244cc; }
+    .skin-swatch { width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .skin-info { flex: 1; min-width: 0; }
+    .skin-row-name { font-size: 14px; color: var(--cream); font-family: Arial, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .skin-row-desc { font-size: 10px; color: var(--muted); font-family: Arial, sans-serif; margin-top: 1px; }
+    body[data-skin="gameTime"] .skin-row-name { color: #1a1a1a; }
+    body[data-skin="gameTime"] .skin-row-desc { color: #6a6a5a; }
+    .skin-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; padding: 3px 7px; border-radius: 10px; flex-shrink: 0; font-family: Arial, sans-serif; }
+    .skin-badge-active  { background: rgba(26,158,143,0.25); color: #1a9e8f; }
+    .skin-badge-preview { background: rgba(200,168,75,0.2);  color: #c8a84b; }
+    .skin-badge-soon    { background: rgba(255,255,255,0.07); color: #5a6a85; border: 1px solid rgba(255,255,255,0.1); }
+    body[data-skin="gameTime"] .skin-badge-active  { background: rgba(34,68,204,0.2); color: #2244cc; }
+    body[data-skin="gameTime"] .skin-badge-soon    { background: rgba(0,0,0,0.08); color: #8a8a7a; border-color: rgba(0,0,0,0.15); }
+    .skin-coming-block { margin: 6px 22px 10px; padding: 10px 13px; background: rgba(200,168,75,0.05); border: 1px dashed rgba(200,168,75,0.22); border-radius: 10px; }
+    body[data-skin="gameTime"] .skin-coming-block { background: rgba(34,68,204,0.05); border-color: rgba(34,68,204,0.2); }
+    .skin-coming-title { font-size: 10px; color: var(--gold); letter-spacing: 0.08em; margin-bottom: 6px; font-family: Arial, sans-serif; }
+    body[data-skin="gameTime"] .skin-coming-title { color: #2244cc; }
+    .skin-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .skin-chip { font-size: 10px; color: var(--muted); padding: 3px 8px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); font-family: Arial, sans-serif; }
+    body[data-skin="gameTime"] .skin-chip { background: rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.12); color: #6a6a5a; }
+
+    /* Preview countdown bar */
+    #skinPreviewBar {
+      display: none; position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+      background: #1a1a1a; color: #f5ede0; font-family: Arial, sans-serif;
+      font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 20px;
+      z-index: 9999; white-space: nowrap; border: 1px solid rgba(200,168,75,0.3); cursor: pointer;
+    }
+    #skinPreviewBar.show { display: block; }
+
+    html, body {
+      height: 100%; width: 100%;
+      overflow: hidden;
+      background: var(--deep);
+      font-family: Georgia, 'Times New Roman', serif;
+      color: var(--cream);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Splash ── */
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0a1628;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+      overflow: hidden;
+    }
+    #splash.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .sp-img {
+      position: absolute; inset: 0;
+      background: url('splash-bg.png') center center / cover no-repeat;
+      animation: spZoom 3.5s ease-out forwards;
+    }
+    @keyframes spZoom { 0%{transform:scale(1.06)} 100%{transform:scale(1)} }
+
+    /* dark gradient veil over bottom so loader bar is readable */
+    .sp-veil {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 55%, rgba(6,16,30,0.85) 100%);
+    }
+
+    .sp-bottom {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center;
+      padding-bottom: 48px; gap: 10px; width: 100%;
+    }
+    .sp-call { color:var(--gold); font-size:12px; letter-spacing:0.22em; text-transform:uppercase; }
+    .sp-bar { width:160px; height:3px; background:rgba(255,255,255,0.15); border-radius:2px; overflow:hidden; }
+    .sp-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--sky),var(--gold)); border-radius:2px; animation:fill 2.6s ease forwards; }
+    @keyframes fill{ 0%{width:0} 55%{width:70%} 85%{width:90%} 100%{width:100%} }
+
+    /* ── Sponsored splash stub ── */
+    #sponsor-splash {
+      position:fixed; inset:0; z-index:9000;
+      background:var(--navy);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:18px;
+      opacity:0; pointer-events:none;
+      transition:opacity 0.4s ease;
+    }
+    #sponsor-splash.show { opacity:1; pointer-events:all; }
+    .sp-sponsor-badge {
+      color:var(--muted); font-size:10px; letter-spacing:0.2em;
+      text-transform:uppercase; font-family:Arial,sans-serif;
+    }
+    .sp-sponsor-logo {
+      width:200px; height:80px;
+      background:rgba(255,255,255,0.05);
+      border:1px dashed rgba(255,255,255,0.15);
+      border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--muted); font-family:Arial,sans-serif; font-size:13px;
+      letter-spacing:0.06em;
+    }
+    .sp-sponsor-msg {
+      color:var(--cream); font-family:Arial,sans-serif; font-size:14px;
+      text-align:center; padding:0 32px; line-height:1.5;
+    }
+    .sp-sponsor-skip {
+      background:none; border:1px solid rgba(255,255,255,0.15);
+      border-radius:20px; color:var(--muted);
+      font-family:Arial,sans-serif; font-size:12px;
+      padding:8px 20px; cursor:pointer; margin-top:8px;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .sp-sponsor-timer {
+      color:var(--gold); font-size:11px; font-family:'Courier New',monospace;
+    }
+
+    /* ── App shell ── */
+    #app {
+      position:fixed; inset:0;
+      display:flex; flex-direction:column;
+      padding-top:var(--safe-top);
+      padding-bottom:var(--safe-bottom);
+      padding-left:var(--safe-left);
+      padding-right:var(--safe-right);
+    }
+    /* Distressed SEAtheWorld — default ghosted background, swaps to album art when playing */
+    #app::before {
+      content:''; position:absolute; inset:0; z-index:0;
+      background: var(--app-bg, url('splash-bg.png')) center center / cover no-repeat;
+      opacity:0.12; pointer-events:none;
+      transition: opacity 0.8s ease;
+    }
+    #app.has-art::before { opacity: 0.18; }
+    /* All direct children sit above the ghost */
+    .topbar, .player-area, #install-banner { position:relative; z-index:1; }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: linear-gradient(180deg,rgba(14,34,64,0.82),rgba(10,22,40,0.88));
+      border-bottom:1px solid rgba(200,168,75,0.18);
+      padding:10px 16px;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-shrink:0;
+      box-shadow:0 2px 18px rgba(0,0,0,0.45);
+      position:relative; z-index:200;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .tb-brand { display:flex; align-items:center; gap:10px; }
+    .tb-icon {
+      width:36px; height:36px; border-radius:9px;
+      background:linear-gradient(145deg,#1a3a5c,#0a1e38);
+      border:1px solid rgba(200,168,75,0.3);
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .tb-icon svg { width:22px; height:22px; }
+    .tb-names { display:flex; flex-direction:column; line-height:1.25; }
+    .tb-name { font-size:15px; color:var(--cream); letter-spacing:0.02em; }
+    .tb-sub  { font-size:10px; color:var(--gold); letter-spacing:0.18em; text-transform:uppercase; }
+    .tb-right { display:flex; align-items:center; gap:10px; }
+
+    .live-badge {
+      display:flex; align-items:center; gap:5px;
+      color:#4ade80; font-size:11px; letter-spacing:0.06em;
+      font-family: Arial, sans-serif;
+    }
+    .live-dot {
+      width:7px; height:7px; border-radius:50%;
+      background:#4ade80; box-shadow:0 0 7px #4ade80;
+      animation:ldot 2s ease-in-out infinite;
+    }
+    @keyframes ldot{ 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+    .menu-btn {
+      width:38px; height:38px; border-radius:10px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+      cursor:pointer; transition:background 0.2s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .menu-btn:active { background:rgba(255,255,255,0.14); }
+    .menu-btn span {
+      display:block; width:18px; height:2px;
+      background:var(--muted); border-radius:2px;
+      transition:all 0.3s;
+    }
+    .menu-btn.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); background:var(--cream); }
+    .menu-btn.open span:nth-child(2){ opacity:0; transform:scaleX(0); }
+    .menu-btn.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); background:var(--cream); }
+
+    /* ── Drawer ── */
+    .drawer {
+      position:fixed; top:0; right:0; bottom:0; z-index:150;
+      width:min(300px, 85vw);
+      background:linear-gradient(180deg,#0f2345,#080f1e);
+      border-left:1px solid rgba(200,168,75,0.2);
+      box-shadow:-8px 0 40px rgba(0,0,0,0.6);
+      transform:translateX(110%);
+      transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      display:flex; flex-direction:column;
+      padding-top:var(--safe-top);
+      padding-bottom:var(--safe-bottom);
+    }
+    .drawer.open { transform:translateX(0); }
+
+    .drawer-head {
+      padding:20px 22px 16px;
+      border-bottom:1px solid rgba(200,168,75,0.15);
+    }
+    .drawer-title { font-size:18px; color:var(--cream); }
+    .drawer-sub { font-size:11px; color:var(--gold); letter-spacing:0.15em; text-transform:uppercase; margin-top:2px; }
+
+    .drawer-nav { flex:1; overflow-y:auto; padding:12px 0; }
+    .drawer-nav a {
+      display:flex; align-items:center; gap:14px;
+      padding:14px 22px;
+      color:var(--muted); text-decoration:none;
+      font-family:Arial,sans-serif; font-size:15px;
+      transition:all 0.2s;
+      border-left:3px solid transparent;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .drawer-nav a:hover, .drawer-nav a:active {
+      color:var(--cream); background:rgba(255,255,255,0.05);
+      border-left-color:var(--gold);
+    }
+    .drawer-nav a svg { width:18px; height:18px; flex-shrink:0; opacity:0.7; }
+    .drawer-divider { height:1px; background:rgba(255,255,255,0.07); margin:8px 22px; }
+    .drawer-footer {
+      padding:16px 22px;
+      border-top:1px solid rgba(255,255,255,0.07);
+      font-family:Arial,sans-serif; font-size:11px; color:var(--muted); line-height:1.6;
+    }
+
+    .drawer-overlay {
+      position:fixed; inset:0; z-index:140;
+      background:rgba(0,0,0,0.55);
+      opacity:0; pointer-events:none;
+      transition:opacity 0.35s;
+    }
+    .drawer-overlay.open { opacity:1; pointer-events:all; }
+
+    /* ── Player area ── */
+    .player-area {
+      flex:1; display:flex; flex-direction:column;
+      overflow:hidden;
+      background: transparent;
+    }
+
+    .art-zone {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:28px 24px 16px;
+      position:relative; overflow:visible;
+    }
+
+    /* ── Meter rings — drawn on canvas, CSS rings removed ── */
+    /* pulse-ring class kept for JS classList compat but invisible */
+    .pulse-ring { display:none; }
+
+    /* ── Visualizer canvas — inside art-disc, centered, bleeds outside ── */
+    #vizCanvas {
+      position:absolute;
+      /* 280% of disc size — gives plenty of room for rings outside the disc */
+      width:280%; height:280%;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      pointer-events:none; z-index:1;
+      opacity:0; transition:opacity 0.8s ease;
+    }
+    #vizCanvas.active { opacity:1; }
+
+    .art-disc {
+      width:min(200px, 46vw); height:min(200px, 46vw);
+      border-radius:50%; position:relative; z-index:2;
+      /* Default vinyl — overridden by inline style when art loads */
+      background-color: #0d2240;
+      background-image: conic-gradient(
+        #0d2240 0deg, #1a3a5c 60deg, #0a1628 120deg,
+        #1a3a5c 180deg, #0d2240 240deg, #0a1628 300deg, #0d2240 360deg
+      );
+      background-size: cover;
+      background-position: center;
+      border:3px solid rgba(200,168,75,0.3);
+      box-shadow: 0 0 0 8px rgba(200,168,75,0.06), 0 20px 60px rgba(0,0,0,0.6);
+      display:flex; align-items:center; justify-content:center;
+      overflow:visible;
+      flex-shrink:0;
+    }
+    /* Vinyl groove overlay — sits above album art, gives it a record feel */
+    .art-disc::after {
+      content:'';
+      position:absolute; inset:0; border-radius:50%;
+      background: repeating-radial-gradient(
+        circle at center,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.08) 3px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events:none; z-index:3;
+    }
+    /* 33⅓ RPM = 1 revolution per 1.8 seconds */
+    .art-disc.spinning { animation: spin 1.8s linear infinite; }
+    @keyframes spin{ to{transform:rotate(360deg)} }
+
+    /* Center label — the FCL image hub */
+    .art-disc-inner {
+      width:32%; height:32%; border-radius:50%;
+      background: var(--deep);
+      border:2px solid rgba(200,168,75,0.35);
+      display:flex; align-items:center; justify-content:center;
+      position:relative; z-index:4;
+      overflow:hidden;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.4), 0 0 12px rgba(0,0,0,0.5);
+      flex-shrink:0;
+    }
+    /* Spindle hole */
+    .art-disc-inner::after {
+      content:''; position:absolute;
+      width:10%; height:10%; border-radius:50%;
+      background:rgba(0,0,0,0.85);
+      z-index:5;
+    }
+
+    /* Art crossfade — filter instead of opacity so spin animation is unaffected */
+    .art-disc.art-updating { filter: brightness(0.4); transition: filter 0.25s ease; }
+    .art-disc { transition: filter 0.25s ease; }
+
+    .track-info {
+      flex-shrink:0;
+      text-align:center; width:100%; padding:10px 20px 8px;
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+    }
+    .track-title {
+      font-size:clamp(16px,4.5vw,22px); color:var(--cream); line-height:1.25;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;
+    }
+    .track-artist {
+      font-size:clamp(13px,3.5vw,17px); color:var(--sky);
+      font-family:Arial,sans-serif; letter-spacing:0.02em;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;
+    }
+    .track-loading { color:var(--muted); font-size:14px; font-family:Arial,sans-serif; animation:blink 1.5s ease-in-out infinite; }
+    @keyframes blink{ 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+    /* ── Vote buttons — absolute lower corners of art-zone (v1.5) ── */
+    .vote-btn {
+      position:absolute;
+      bottom:14px;
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.12);
+      font-size:1.25rem; line-height:1;
+      display:none; align-items:center; justify-content:center;
+      cursor:pointer; opacity:0.55;
+      transition:opacity 0.15s, transform 0.15s, background 0.15s;
+      -webkit-tap-highlight-color:transparent;
+      z-index:10;
+    }
+    .vote-btn-left  { left:18px; }
+    .vote-btn-right { right:18px; }
+    .vote-btn:hover  { opacity:1; }
+    .vote-btn:active { transform:scale(1.2); }
+    .vote-btn.voted  { opacity:1; background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.28); }
+    /* Game Time — nudge above GT footer row */
+    body[data-skin="gameTime"] .vote-btn { bottom:68px; }
+
+    /* ── Now-playing crawl strip ── */
+    .nowplaying-strip {
+      flex-shrink:0;
+      background:rgba(6,16,30,0.75);
+      border-top:1px solid rgba(200,168,75,0.12);
+      border-bottom:1px solid rgba(200,168,75,0.08);
+      padding:7px 0;
+      overflow:hidden;
+      position:relative; z-index:2;
+      backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
+    }
+    .nowplaying-inner {
+      display:flex; align-items:center;
+      white-space:nowrap;
+      /* animation added by JS when text overflows, else static */
+    }
+    .nowplaying-inner.crawl {
+      animation: crawlLeft var(--crawl-dur, 18s) linear infinite;
+    }
+    @keyframes crawlLeft {
+      0%   { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+    .np-label {
+      color:var(--gold); font-size:10px; letter-spacing:0.18em;
+      text-transform:uppercase; font-family:Arial,sans-serif;
+      padding:0 12px; flex-shrink:0;
+    }
+    .np-dot { color:var(--gold); padding:0 6px; flex-shrink:0; }
+    .np-title  { color:var(--cream); font-size:12px; font-family:Arial,sans-serif; font-weight:600; }
+    .np-artist { color:var(--sky);   font-size:12px; font-family:Arial,sans-serif; }
+    .np-idle   { color:var(--muted); font-size:11px; font-family:Arial,sans-serif; padding:0 14px; letter-spacing:0.04em; }
+
+    /* ── Controls dock ── */
+    .controls-dock {
+      flex-shrink:0;
+      background:linear-gradient(0deg,rgba(8,15,30,0.88),rgba(10,22,40,0.82));
+      border-top:1px solid rgba(200,168,75,0.15);
+      padding:18px 24px 20px;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .vol-row { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+    .vol-icon { color:var(--muted); flex-shrink:0; }
+    .vol-icon svg { width:18px; height:18px; display:block; }
+
+    input[type=range].vol-slider {
+      flex:1; -webkit-appearance:none; appearance:none;
+      height:4px; border-radius:2px; outline:none; cursor:pointer;
+      background:linear-gradient(to right, var(--teal) 0%, var(--teal) var(--vol,80%), rgba(255,255,255,0.12) var(--vol,80%), rgba(255,255,255,0.12) 100%);
+    }
+    input[type=range].vol-slider::-webkit-slider-thumb {
+      -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+      background:var(--cream); border:2px solid var(--teal); box-shadow:0 2px 8px rgba(0,0,0,0.4); cursor:pointer;
+    }
+    input[type=range].vol-slider::-moz-range-thumb {
+      width:18px; height:18px; border-radius:50%;
+      background:var(--cream); border:2px solid var(--teal); box-shadow:0 2px 8px rgba(0,0,0,0.4); cursor:pointer;
+    }
+    .vol-pct { color:var(--muted); font-family:Arial,sans-serif; font-size:12px; min-width:36px; text-align:right; }
+
+    .btn-row { display:flex; align-items:center; justify-content:center; gap:20px; }
+
+    .btn-secondary {
+      width:52px; height:52px; border-radius:50%;
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+      color:var(--muted); display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent;
+    }
+    .btn-secondary:active { background:rgba(255,255,255,0.14); color:var(--cream); transform:scale(0.93); }
+    .btn-secondary svg { width:22px; height:22px; }
+
+    .btn-play {
+      width:76px; height:76px; border-radius:50%;
+      background:linear-gradient(145deg,var(--teal),#128a7d);
+      border:none; color:white;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.2s; position:relative;
+      box-shadow:0 6px 28px rgba(26,158,143,0.45), 0 2px 8px rgba(0,0,0,0.4);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn-play:active { transform:scale(0.93); }
+    .btn-play.loading { background:linear-gradient(145deg,#444,#333); box-shadow:none; cursor:wait; }
+    .btn-play svg { width:32px; height:32px; }
+    .btn-play #iconPlay { margin-left:3px; }
+
+    .spin-ring {
+      position:absolute; inset:-4px; border-radius:50%;
+      border:2px solid transparent; border-top-color:var(--sky);
+      animation:bspin 0.8s linear infinite; display:none;
+    }
+    .btn-play.loading .spin-ring { display:block; }
+    @keyframes bspin{ to{transform:rotate(360deg)} }
+
+    .err-bar {
+      background:rgba(224,85,85,0.15); border:1px solid rgba(224,85,85,0.3);
+      border-radius:8px; padding:9px 14px; margin:0 0 14px;
+      color:#ff9f9f; font-family:Arial,sans-serif; font-size:13px;
+      display:none; align-items:center; gap:8px;
+    }
+    .err-bar.show { display:flex; }
+    .err-bar svg { width:16px; height:16px; flex-shrink:0; }
+
+    .status-bar {
+      display:flex; align-items:center; justify-content:center; gap:6px; margin-top:14px;
+    }
+    .status-bar .dot { width:5px; height:5px; border-radius:50%; background:var(--muted); }
+    .status-bar .dot.live { background:#4ade80; box-shadow:0 0 5px #4ade80; animation:ldot 2s ease-in-out infinite; }
+
+    /* ── Amazon buy button ── */
+    .amz-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(255,153,0,0.15); border:1px solid rgba(255,153,0,0.35);
+      border-radius:8px; padding:5px 10px; margin-top:6px;
+      color:#ffad33; font-family:Arial,sans-serif; font-size:11px; font-weight:600;
+      text-decoration:none; cursor:pointer; letter-spacing:0.04em;
+      transition:all 0.2s; -webkit-tap-highlight-color:transparent;
+    }
+    .amz-btn:active { background:rgba(255,153,0,0.28); }
+    .amz-btn svg { width:12px; height:12px; flex-shrink:0; }
+
+    /* ── Sleep timer button ── */
+    .sleep-btn {
+      background:none; border:none; color:var(--muted);
+      font-family:Arial,sans-serif; font-size:11px; letter-spacing:0.06em;
+      display:flex; align-items:center; gap:5px; cursor:pointer;
+      padding:4px 8px; border-radius:6px; transition:all 0.2s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .sleep-btn:active, .sleep-btn.active { color:var(--gold); }
+    .sleep-btn svg { width:14px; height:14px; }
+
+    /* ── Offline banner ── */
+    #offline-bar {
+      position:fixed; top:0; left:0; right:0; z-index:9600;
+      background:rgba(180,60,60,0.95); color:#fff;
+      font-family:Arial,sans-serif; font-size:12px; font-weight:600;
+      text-align:center; padding:8px;
+      transform:translateY(-100%); transition:transform 0.3s ease;
+      padding-top:calc(8px + var(--safe-top));
+    }
+    #offline-bar.show { transform:translateY(0); }
+
+    /* ── Recently played ── */
+    .drawer-recents { padding:0 0 8px; }
+    .drawer-recents-title {
+      padding:12px 22px 6px;
+      color:var(--gold); font-size:10px; letter-spacing:0.18em;
+      text-transform:uppercase; font-family:Arial,sans-serif;
+    }
+    .recent-item {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 22px; border-bottom:1px solid rgba(255,255,255,0.04);
+    }
+    .recent-num {
+      color:var(--muted); font-size:10px; font-family:'Courier New',monospace;
+      width:16px; text-align:right; flex-shrink:0;
+    }
+    .recent-info { flex:1; overflow:hidden; }
+    .recent-title  { color:var(--cream); font-size:13px; font-family:Arial,sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .recent-artist { color:var(--muted); font-size:11px; font-family:Arial,sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .recent-time   { color:var(--muted); font-size:10px; font-family:Arial,sans-serif; flex-shrink:0; }
+
+    /* ── Track overlay on art disc (shown when album art present) ── */
+    .disc-track-overlay {
+      position:absolute; bottom:0; left:0; right:0; z-index:10;
+      background:linear-gradient(to top, rgba(0,0,0,0.78) 0%, transparent 100%);
+      border-radius:0 0 50% 50%;
+      padding:20% 14% 8%;
+      text-align:center;
+      opacity:0; transition:opacity 0.4s ease;
+      pointer-events:none;
+    }
+    .art-disc.has-art .disc-track-overlay { opacity:1; }
+    .dto-title  { color:#fff; font-size:clamp(8px,2.2vw,11px); font-family:Arial,sans-serif; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; }
+    .dto-artist { color:rgba(255,255,255,0.75); font-size:clamp(7px,1.8vw,10px); font-family:Arial,sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #install-banner {
+      position:fixed; bottom:0; left:0; right:0; z-index:8000;
+      background:linear-gradient(135deg,#0d2240,#0a1628);
+      border-top:1px solid rgba(200,168,75,0.3);
+      padding:14px 18px; padding-bottom:calc(14px + var(--safe-bottom));
+      display:flex; align-items:center; gap:14px;
+      transform:translateY(110%);
+      transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow:0 -8px 32px rgba(0,0,0,0.5);
+    }
+    #install-banner.show { transform:translateY(0); }
+    .ib-icon {
+      width:46px; height:46px; border-radius:11px; flex-shrink:0;
+      background:linear-gradient(145deg,#1a3a5c,#0d2240);
+      border:1px solid rgba(200,168,75,0.3);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .ib-icon svg { width:26px; height:26px; }
+    .ib-text { flex:1; }
+    .ib-text strong { color:var(--cream); font-size:14px; display:block; margin-bottom:2px; }
+    .ib-text span { color:var(--muted); font-size:12px; font-family:Arial,sans-serif; }
+    .ib-btn {
+      background:linear-gradient(135deg,var(--teal),var(--sky));
+      color:white; border:none; border-radius:10px;
+      padding:10px 16px; font-size:13px; font-family:Arial,sans-serif; font-weight:600;
+      cursor:pointer; flex-shrink:0; -webkit-tap-highlight-color:transparent;
+    }
+    .ib-close { background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; padding:4px; line-height:1; flex-shrink:0; }
+
+    /* ── iOS Modal ── */
+    #ios-modal {
+      display:none; position:fixed; inset:0; z-index:9000;
+      background:rgba(0,0,0,0.7); align-items:flex-end; justify-content:center;
+    }
+    #ios-modal.open { display:flex; }
+    .ios-sheet {
+      background:linear-gradient(180deg,#0f2040,#0a1628);
+      border:1px solid rgba(200,168,75,0.22); border-radius:24px 24px 0 0;
+      padding:28px 24px calc(28px + var(--safe-bottom));
+      width:100%; max-width:500px;
+      animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes slideUp{ from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .ios-sheet h3 { color:var(--cream); font-size:18px; margin-bottom:6px; }
+    .ios-sheet p  { color:var(--muted); font-size:13px; margin-bottom:20px; line-height:1.5; font-family:Arial,sans-serif; }
+    .ios-steps { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; }
+    .ios-step { display:flex; align-items:center; gap:14px; }
+    .ios-num {
+      width:30px; height:30px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,var(--teal),var(--sky));
+      color:white; font-size:14px; font-weight:700; font-family:Arial,sans-serif;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .ios-step-txt { color:var(--cream); font-size:14px; line-height:1.4; font-family:Arial,sans-serif; }
+    .ios-step-txt em { color:var(--gold); font-style:normal; font-weight:600; }
+    .ios-ok {
+      width:100%; padding:14px; background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.12); border-radius:12px;
+      color:var(--cream); font-size:15px; font-family:Arial,sans-serif; cursor:pointer;
+    }
+    /* ── Contact Sheet ── */
+    #contact-modal {
+      display:none; position:fixed; inset:0; z-index:9500;
+      background:rgba(0,0,0,0.72); align-items:flex-end; justify-content:center;
+    }
+    #contact-modal.open { display:flex; }
+
+    .contact-sheet {
+      background:linear-gradient(180deg,#0f2345 0%,#080f1e 100%);
+      border:1px solid rgba(200,168,75,0.22);
+      border-radius:24px 24px 0 0;
+      width:100%; max-width:520px;
+      max-height:88vh; overflow-y:auto;
+      padding-bottom:calc(20px + var(--safe-bottom));
+      animation:slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      /* Allow absolutely-positioned dropdowns to overflow the scroll container */
+      overflow-x: visible;
+    }
+
+    /* Panels — request panel needs overflow visible for dropdown */
+    .cs-panel { display:none; padding:20px 22px; }
+    .cs-panel.active { display:block; }
+    #panel-request { overflow: visible; }
+
+    .cs-header {
+      display:flex; flex-direction:column;
+      padding:22px 22px 14px; position:relative;
+      border-bottom:1px solid rgba(200,168,75,0.12);
+    }
+    .cs-title { color:var(--cream); font-size:19px; letter-spacing:0.02em; }
+    .cs-sub   { color:var(--gold); font-size:11px; letter-spacing:0.16em; text-transform:uppercase; margin-top:3px; }
+    .cs-close {
+      position:absolute; top:18px; right:18px;
+      background:rgba(255,255,255,0.08); border:none; border-radius:50%;
+      width:30px; height:30px; color:var(--muted); font-size:18px; line-height:1;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    .cs-close:active { background:rgba(255,255,255,0.16); }
+
+    /* Tabs */
+    .cs-tabs {
+      display:flex; border-bottom:1px solid rgba(255,255,255,0.07);
+      padding:0 8px;
+    }
+    .cs-tab {
+      flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+      padding:12px 4px 10px;
+      background:none; border:none; border-bottom:2px solid transparent;
+      color:var(--muted); font-size:11px; font-family:Arial,sans-serif;
+      cursor:pointer; transition:all 0.2s; letter-spacing:0.04em;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .cs-tab svg { width:18px; height:18px; }
+    .cs-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
+    .cs-tab:active { color:var(--cream); }
+
+    .cs-desc {
+      color:var(--muted); font-size:13px; font-family:Arial,sans-serif;
+      line-height:1.55; margin-bottom:18px;
+    }
+    .cs-note {
+      color:var(--muted); font-size:11px; font-family:Arial,sans-serif;
+      text-align:center; margin-top:14px; opacity:0.7; letter-spacing:0.03em;
+    }
+
+    /* Action buttons */
+    .cs-action-btn {
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      width:100%; padding:14px; border-radius:14px; margin-bottom:10px;
+      font-size:15px; font-family:Arial,sans-serif; font-weight:600;
+      border:none; cursor:pointer; text-decoration:none;
+      transition:opacity 0.15s, transform 0.15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .cs-action-btn:active { opacity:0.8; transform:scale(0.97); }
+    .cs-action-btn svg { width:18px; height:18px; flex-shrink:0; }
+    .cs-call  { background:linear-gradient(135deg,#1a7a4a,#15623c); color:#a8ffd0; }
+    .cs-text  { background:linear-gradient(135deg,#1a4a8a,#123570); color:#a8d0ff; }
+    .cs-send  { background:linear-gradient(135deg,var(--teal),#128a7d); color:white; }
+    .cs-discard { background:rgba(255,255,255,0.06); color:var(--muted); border:1px solid rgba(255,255,255,0.1); }
+
+    /* Voice recorder UI */
+    .voice-ui {
+      display:flex; flex-direction:column; align-items:center; gap:12px;
+      padding:20px 0 10px;
+    }
+    .voice-rec-btn {
+      width:80px; height:80px; border-radius:50%;
+      background:linear-gradient(145deg,#8a1a1a,#6b1212);
+      border:3px solid rgba(248,113,113,0.35);
+      color:#fca5a5; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:all 0.2s;
+      box-shadow:0 6px 24px rgba(248,113,113,0.25);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .voice-rec-btn svg { width:32px; height:32px; }
+    .voice-rec-btn.recording {
+      background:linear-gradient(145deg,#c51a1a,#9b1111);
+      box-shadow:0 0 0 6px rgba(248,113,113,0.2), 0 6px 24px rgba(248,113,113,0.4);
+      animation:recPulse 1s ease-in-out infinite;
+    }
+    @keyframes recPulse{0%,100%{box-shadow:0 0 0 6px rgba(248,113,113,0.2),0 6px 24px rgba(248,113,113,0.4)} 50%{box-shadow:0 0 0 12px rgba(248,113,113,0.1),0 6px 32px rgba(248,113,113,0.5)}}
+    .voice-label { color:var(--cream); font-family:Arial,sans-serif; font-size:14px; }
+    .voice-timer { color:#fca5a5; font-family:'Courier New',monospace; font-size:20px; font-weight:700; }
+
+    /* Animated wave bars while recording */
+    .voice-wave { display:flex; align-items:center; gap:3px; height:28px; }
+    .voice-wave span {
+      display:block; width:4px; border-radius:2px; background:#fca5a5;
+      animation:waveBar 0.8s ease-in-out infinite;
+    }
+    .voice-wave span:nth-child(1){height:8px;  animation-delay:0s}
+    .voice-wave span:nth-child(2){height:16px; animation-delay:0.1s}
+    .voice-wave span:nth-child(3){height:24px; animation-delay:0.2s}
+    .voice-wave span:nth-child(4){height:16px; animation-delay:0.3s}
+    .voice-wave span:nth-child(5){height:8px;  animation-delay:0.4s}
+    @keyframes waveBar{0%,100%{transform:scaleY(0.5);opacity:0.5} 50%{transform:scaleY(1);opacity:1}}
+
+    /* Dedication form */
+    .ded-form { display:flex; flex-direction:column; gap:10px; }
+    .ded-input {
+      width:100%; padding:12px 14px; border-radius:10px;
+      background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+      color:var(--cream); font-size:14px; font-family:Arial,sans-serif;
+      outline:none; transition:border-color 0.2s;
+    }
+    .ded-input:focus { border-color:rgba(200,168,75,0.45); }
+    .ded-input::placeholder { color:var(--muted); }
+    .ded-msg { resize:none; }
+
+    /* Dedication checkbox row */
+    .ded-check-row {
+      display:flex; align-items:center; gap:10px;
+      cursor:pointer; padding:2px 0; user-select:none;
+    }
+    .ded-check-row input[type=checkbox] { display:none; }
+    .ded-check-box {
+      width:20px; height:20px; border-radius:5px; flex-shrink:0;
+      border:1.5px solid rgba(200,168,75,0.4);
+      background:rgba(255,255,255,0.05);
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.18s;
+    }
+    .ded-check-row input:checked ~ .ded-check-box {
+      background:var(--gold); border-color:var(--gold);
+    }
+    .ded-check-row input:checked ~ .ded-check-box::after {
+      content:''; display:block;
+      width:5px; height:9px;
+      border:2px solid #06101e; border-top:none; border-left:none;
+      transform:rotate(45deg) translate(-1px,-1px);
+    }
+    .ded-check-label {
+      color:var(--muted); font-size:13px; font-family:Arial,sans-serif;
+      transition:color 0.18s;
+    }
+    .ded-check-row:has(input:checked) .ded-check-label { color:var(--gold); }
+
+    /* Song search */
+    .song-search-wrap { position:relative; }
+    .song-results {
+      position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:99999;
+      background:#0d2240; border:1px solid rgba(200,168,75,0.3);
+      border-radius:10px; max-height:180px; overflow-y:auto;
+      box-shadow:0 12px 32px rgba(0,0,0,0.7);
+    }
+    .song-result-item {
+      padding:10px 14px; cursor:pointer;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      transition:background 0.15s;
+    }
+    .song-result-item:last-child { border-bottom:none; }
+    .song-result-item:hover, .song-result-item:active { background:rgba(200,168,75,0.1); }
+    .sri-title  { color:var(--cream); font-size:13px; font-family:Arial,sans-serif; }
+    .sri-artist { color:var(--muted); font-size:11px; font-family:Arial,sans-serif; margin-top:2px; }
+    .sri-cat    { color:var(--gold); font-size:10px; font-family:Arial,sans-serif; float:right; opacity:0.7; }
+    .song-selected {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px; background:rgba(26,158,143,0.12);
+      border:1px solid rgba(26,158,143,0.3); border-radius:10px;
+    }
+    .song-sel-title  { color:var(--cream); font-size:13px; font-family:Arial,sans-serif; font-weight:600; }
+    .song-sel-artist { color:var(--teal); font-size:11px; font-family:Arial,sans-serif; margin-top:2px; }
+    .song-sel-clear  {
+      background:none; border:none; color:var(--muted); font-size:20px;
+      cursor:pointer; padding:0 4px; line-height:1; flex-shrink:0;
+    }
+
+    /* Coming soon badge */
+    .cs-coming-soon {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      margin-top:16px; padding:12px;
+      background:rgba(200,168,75,0.06); border:1px dashed rgba(200,168,75,0.25);
+      border-radius:10px; color:var(--gold); font-size:12px;
+      font-family:Arial,sans-serif; letter-spacing:0.06em;
+    }
+    .cs-coming-soon svg { width:14px; height:14px; }
+  </style>
+</head>
+<body>
+
+<!-- Splash -->
+<div id="splash">
+  <div class="sp-img"></div>
+  <div class="sp-veil"></div>
+  <div class="sp-bottom">
+    <div class="sp-call">WYRR-DB &bull; 702-YR-YACHT</div>
+    <div class="sp-bar"><div class="sp-fill"></div></div>
+  </div>
+</div>
+
+<!-- Sponsored splash — hidden until a sponsor is configured via SPONSOR config below -->
+<div id="sponsor-splash">
+  <div class="sp-sponsor-badge">Presented by</div>
+  <div class="sp-sponsor-logo" id="sponsorLogo">Your Brand Here</div>
+  <div class="sp-sponsor-msg" id="sponsorMsg">Smooth sailing music brought to you by our friends at...</div>
+  <div class="sp-sponsor-timer" id="sponsorTimer">5</div>
+  <button class="sp-sponsor-skip" id="sponsorSkip">Skip &rsaquo;</button>
+</div>
+
+<!-- Drawer overlay -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- Menu drawer -->
+<nav class="drawer" id="drawer">
+  <div class="drawer-head" style="display:flex;align-items:flex-start;justify-content:space-between;">
+    <div>
+      <div class="drawer-title">Yacht Rockin' Radio</div>
+      <div class="drawer-sub">WYRR-DB &bull; yachtrockinradio.com</div>
+    </div>
+    <button id="drawerCloseBtn" aria-label="Close menu" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:50%;width:30px;height:30px;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;-webkit-tap-highlight-color:transparent;">&times;</button>
+  </div>
+  <div class="drawer-nav">
+    <a href="https://www.yachtrockinradio.com/home" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+    </a>
+    <a href="https://www.yachtrockinradio.com/news" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>News
+    </a>
+
+    <a href="https://www.yachtrockinradio.com/yclb" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Yacht Club Lunch Bunch
+    </a>
+    <a href="https://www.yachtrockinradio.com/about-us" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>About Us
+    </a>
+    <div class="drawer-divider"></div>
+    <a href="https://www.yachtrockinradio.com/partners" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Partners
+    </a>
+    <div class="drawer-divider"></div>
+    <a href="#" onclick="shareApp();return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share the App
+    </a>
+    <div class="drawer-divider"></div>
+    <a href="#" id="contactBtn" onclick="openContact();return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Contact the Station
+    </a>
+    <div class="drawer-divider"></div>
+
+    <!-- ── Skin switcher ── -->
+    <div class="skin-switcher-section">
+      <div class="skin-switcher-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        Player Skins
+      </div>
+      <div class="skin-row skin-active" id="skinRowDefault">
+        <div class="skin-swatch" style="background:linear-gradient(135deg,#0d1f36,#0a1628);border:1px solid rgba(200,168,75,0.3);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a9e8f" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="skin-info">
+          <div class="skin-row-name">Yacht Rock</div>
+          <div class="skin-row-desc">Default &bull; Yacht tier &bull; free</div>
+        </div>
+        <span class="skin-badge skin-badge-active" id="skinBadgeDefault">Active</span>
+      </div>
+      <div class="skin-row" id="skinRowGameTime">
+        <div class="skin-swatch" style="background:#1a1a1a;border:1px solid #444;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff2020" stroke-width="1.5"><rect x="2" y="6" width="20" height="14" rx="4"/><circle cx="8" cy="13" r="2"/><path d="M14 11h4M16 9v4"/></svg>
+        </div>
+        <div class="skin-info">
+          <div class="skin-row-name">Game Time</div>
+          <div class="skin-row-desc">Megayacht &bull; $2.99 &bull; 60s preview</div>
+        </div>
+        <span class="skin-badge skin-badge-preview" id="skinBadgeGameTime">Preview</span>
+      </div>
+      <div class="skin-coming-block">
+        <div class="skin-coming-title">Coming soon</div>
+        <div class="skin-chips">
+          <span class="skin-chip">Mission Control</span>
+          <span class="skin-chip">The Receiver</span>
+          <span class="skin-chip">Atari 2600</span>
+          <span class="skin-chip">Cruisin'</span>
+          <span class="skin-chip">Arcade</span>
+          <span class="skin-chip">Olympic 401</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-divider"></div>
+    <!-- Recently played -->
+    <div class="drawer-recents" id="drawerRecents" style="display:none">
+      <div class="drawer-recents-title">Recently Played</div>
+      <div id="recentsList"></div>
+    </div>
+  </div><!-- end drawer-nav -->
+  <div class="drawer-footer">
+    Yacht Rockin' Radio &bull; WYRR-DB<br>
+    Live365 Internet Radio<br>
+    <span id="appVersionLabel"></span> &bull; &copy; 2seedelight Productions LLC
+  </div>
+</nav>
+
+<!-- Skin preview countdown bar -->
+<div id="skinPreviewBar"></div>
+
+<!-- Offline bar -->
+<div id="offline-bar">&#x2715; No internet connection — stream will resume when reconnected</div>
+
+<!-- App -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-icon">
+        <img src="icons/fcl-source.jpeg" alt="YRR" style="width:28px;height:28px;border-radius:6px;object-fit:cover;display:block;">
+      </div>
+      <div class="tb-names">
+        <span class="tb-name">Yacht Rockin' Radio</span>
+        <span class="tb-sub">WYRR-DB &bull; Live</span>
+      </div>
+    </div>
+    <div class="tb-right">
+      <div class="live-badge" id="liveBadge" style="display:none"><div class="live-dot"></div>LIVE</div>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+
+  <div class="player-area">
+    <div class="art-zone">
+      <div class="pulse-ring" id="ring1"></div>
+      <div class="pulse-ring" id="ring2"></div>
+      <div class="pulse-ring" id="ring3"></div>
+
+      <!-- Standard disc (hidden by GT skin) -->
+      <div class="art-disc" id="artDisc">
+        <canvas id="vizCanvas" width="480" height="480"></canvas>
+        <!-- Game Time oval field — only visible under gameTime skin -->
+        <div id="gtScoreHeader">
+          <span>DN&nbsp;<span class="gt-hdr-val" id="gtDown">1</span></span>
+          <span>FLD&nbsp;<span class="gt-hdr-val" id="gtField">--</span></span>
+          <span>SCORE&nbsp;<span class="gt-hdr-val" id="gtScore">0</span></span>
+          <span><span class="gt-hdr-val" id="gtTime">2:00</span></span>
+        </div>
+        <div id="gtFieldOval">
+          <div id="gtResultMsg"></div>
+          <svg id="gtYardLines" width="100%" height="100%" viewBox="0 0 160 80" preserveAspectRatio="none">
+            <line x1="13"  y1="0" x2="13"  y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <line x1="33"  y1="0" x2="33"  y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <line x1="53"  y1="0" x2="53"  y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <line x1="80"  y1="0" x2="80"  y2="80" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+            <line x1="107" y1="0" x2="107" y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <line x1="127" y1="0" x2="127" y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+            <line x1="147" y1="0" x2="147" y2="80" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+          </svg>
+          <div id="gtLedGrid"><div id="gtLedInner"></div></div>
+        </div>
+        <div class="art-disc-inner">
+          <img id="discLabel" src="icons/fcl-source.jpeg" alt="YRR" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">
+        </div>
+        <div class="disc-track-overlay" id="discTrackOverlay">
+          <div class="dto-title"  id="dtoTitle"></div>
+          <div class="dto-artist" id="dtoArtist"></div>
+        </div>
+      </div>
+
+      <!-- GT status bar — visible below oval only in gameTime skin -->
+      <div id="gtStatusBar" style="display:none">
+        <span>Tap&nbsp;<span class="gt-sv">▶</span>&nbsp;Hike</span>
+        <span>Dn&nbsp;<span class="gt-sv" id="gtDownB">1</span></span>
+        <span>Fld&nbsp;<span class="gt-sv" id="gtFieldB">--</span></span>
+        <span>Score&nbsp;<span class="gt-sv" id="gtScoreB">0</span></span>
+        <span><span class="gt-sv" id="gtTimeB">2:00</span></span>
+      </div>
+
+      <!-- GT game message (flashes play calls etc) -->
+      <div id="gtMsg"></div>
+
+      <!-- GT black button panel — only visible in gameTime skin -->
+      <div id="gtPanel">
+        <div class="gt-btn-row">
+          <!-- Left: ST and SC stacked -->
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <button class="gt-btn gt-btn-blue" id="gtST">ST</button>
+            <button class="gt-btn gt-btn-blue" id="gtSC">SC</button>
+          </div>
+          <!-- Center-left: K button -->
+          <button class="gt-btn gt-btn-k" id="gtK">K</button>
+          <!-- Center: orange hike -->
+          <button class="gt-btn gt-btn-orange" id="gtHikeBtn">&#9654;</button>
+          <!-- Right: Up/Down stacked -->
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <button class="gt-btn gt-btn-red" id="gtUp">&#9650;</button>
+            <button class="gt-btn gt-btn-red" id="gtDn">&#9660;</button>
+          </div>
+        </div>
+        <!-- Pro 1 / Off / Pro 2 toggle -->
+        <div class="gt-toggle-row">
+          <span class="gt-toggle-label">Pro 1</span>
+          <div class="gt-toggle-track"><div class="gt-toggle-thumb"></div></div>
+          <span class="gt-toggle-label">Off</span>
+          <div class="gt-toggle-track"><div class="gt-toggle-thumb"></div></div>
+          <span class="gt-toggle-label">Pro 2</span>
+        </div>
+      </div>
+
+      <!-- GT footer: embossed flamingo + YACHT ROCK badge -->
+      <div id="gtFooterRow">
+        <div class="gt-emblem">
+          <!-- Embossed FCL flamingo crest — SVG outline, no color fill so it reads as embossed -->
+          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="#a8a090" stroke-width="3" opacity="0.7">
+            <ellipse cx="50" cy="55" rx="22" ry="28"/>
+            <path d="M50 27 Q58 18 65 22 Q60 30 50 27Z"/>
+            <path d="M50 27 Q42 18 35 22 Q40 30 50 27Z"/>
+            <circle cx="50" cy="48" r="8"/>
+            <path d="M42 65 Q38 78 32 82" stroke-linecap="round"/>
+            <path d="M58 65 Q62 78 68 82" stroke-linecap="round"/>
+            <path d="M32 82 Q30 85 35 84" stroke-linecap="round"/>
+            <path d="M68 82 Q70 85 65 84" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="gt-badge">Yacht Rock</div>
+        <div class="gt-emblem">
+          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" stroke="#a8a090" stroke-width="3" opacity="0.7">
+            <ellipse cx="50" cy="55" rx="22" ry="28"/>
+            <path d="M50 27 Q58 18 65 22 Q60 30 50 27Z"/>
+            <path d="M50 27 Q42 18 35 22 Q40 30 50 27Z"/>
+            <circle cx="50" cy="48" r="8"/>
+            <path d="M42 65 Q38 78 32 82" stroke-linecap="round"/>
+            <path d="M58 65 Q62 78 68 82" stroke-linecap="round"/>
+            <path d="M32 82 Q30 85 35 84" stroke-linecap="round"/>
+            <path d="M68 82 Q70 85 65 84" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Vote thumbs — lower corners of art frame (v1.5) -->
+      <button class="vote-btn vote-btn-left"  id="btnThumbDown" aria-label="Thumbs down" style="display:none">👎</button>
+      <button class="vote-btn vote-btn-right" id="btnThumbUp"   aria-label="Thumbs up"   style="display:none">👍</button>
+
+    </div><!-- end art-zone -->
+
+    <!-- Track info — outside art-zone so it sits fully below the visualizer rings -->
+    <div class="track-info">
+      <div class="track-title" id="trackTitle"><span class="track-loading">Tap play to tune in&hellip;</span></div>
+      <div class="track-artist" id="trackArtist"></div>
+      <a class="amz-btn" id="amzBtn" style="display:none" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+        Buy on Amazon
+      </a>
+    </div>
+    <div class="nowplaying-strip" id="nowplayingStrip">
+      <div class="nowplaying-inner" id="nowplayingInner">
+        <span class="np-idle" id="npIdle">The Best Yacht, Rock and Retro 24/7!</span>
+        <span class="np-label" id="npLabel" style="display:none">Now Playing</span>
+        <span class="np-dot"  id="npDot"  style="display:none">&nbsp;&bull;&nbsp;</span>
+        <span class="np-title"  id="npTitle"  style="display:none"></span>
+        <span class="np-dot"  id="npDot2" style="display:none">&nbsp;&mdash;&nbsp;</span>
+        <span class="np-artist" id="npArtist" style="display:none"></span>
+      </div>
+    </div>
+
+    <div class="controls-dock">
+      <div class="err-bar" id="errBar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errMsg">Stream unavailable. Tap play to retry.</span>
+      </div>
+
+      <div class="vol-row">
+        <div class="vol-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path id="vw1" d="M15.54 8.46a5 5 0 010 7.07"/>
+            <path id="vw2" d="M19.07 4.93a10 10 0 010 14.14"/>
+          </svg>
+        </div>
+        <input type="range" class="vol-slider" id="volSlider" min="0" max="100" value="80" style="--vol:80%" />
+        <span class="vol-pct" id="volPct">80%</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-secondary" id="muteBtn" title="Mute">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line id="ml1" x1="23" y1="9" x2="17" y2="15" style="display:none"/>
+            <line id="ml2" x1="17" y1="9" x2="23" y2="15" style="display:none"/>
+            <path id="mw" d="M15.54 8.46a5 5 0 010 7.07"/>
+          </svg>
+        </button>
+
+        <button class="btn-play" id="playBtn">
+          <div class="spin-ring"></div>
+          <svg id="iconPlay"  viewBox="0 0 24 24" fill="currentColor" style="margin-left:3px"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+
+        <button class="btn-secondary" id="refreshBtn" title="Reconnect">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+
+      <div class="status-bar">
+        <div class="dot" id="statusDot"></div>
+        <span id="statusTxt" style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">Tap play to start</span>
+        <button class="sleep-btn" id="sleepBtn" title="Sleep timer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="sleepLabel">Sleep</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Install banner -->
+<div id="install-banner">
+  <div class="ib-icon"><img src="icons/fcl-source.jpeg" alt="YRR" style="width:38px;height:38px;border-radius:9px;object-fit:cover;display:block;"></div>
+  <div class="ib-text"><strong>Add to Home Screen</strong><span>Install Yacht Rockin' Radio as an app</span></div>
+  <button class="ib-btn" id="installBtn">Install</button>
+  <button class="ib-close" id="bannerClose">&times;</button>
+</div>
+
+<!-- Contact Sheet -->
+<div id="contact-modal">
+  <div class="contact-sheet">
+    <div class="cs-header">
+      <div class="cs-title">Contact the Station</div>
+      <div class="cs-sub">WYRR-DB &bull; 702-YR-YACHT</div>
+      <button class="cs-close" id="contactClose">&times;</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="cs-tabs">
+      <button class="cs-tab active" data-tab="call">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.16a16 16 0 006.93 6.93l1.52-1.52a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Call / Text
+      </button>
+      <button class="cs-tab" data-tab="voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        Voice Memo
+      </button>
+      <button class="cs-tab" data-tab="request">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+        Requests
+      </button>
+    </div>
+
+    <!-- Call / Text panel -->
+    <div class="cs-panel active" id="panel-call">
+      <p class="cs-desc">Reach Capt. Hugh and the crew directly. We love hearing from listeners!</p>
+      <a class="cs-action-btn cs-call" href="tel:7029792248">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012.18 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.16a16 16 0 006.93 6.93l1.52-1.52a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Call 702-YR-YACHT
+      </a>
+      <a class="cs-action-btn cs-text" href="sms:7029792248">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Text the Station
+      </a>
+      <div class="cs-note">Available 24 &sol; 7 &bull; 702-YR-YACHT</div>
+    </div>
+
+    <!-- Voice Memo panel -->
+    <div class="cs-panel" id="panel-voice">
+      <p class="cs-desc">Record a message for the crew — shout-outs, requests, anything on your mind. We may play it on air!</p>
+      <div class="voice-ui">
+        <button class="voice-rec-btn" id="voiceRecBtn">
+          <svg id="voiceRecIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <div class="voice-label" id="voiceLabel">Tap to record</div>
+        <div class="voice-timer" id="voiceTimer" style="display:none">0:00</div>
+        <div class="voice-wave" id="voiceWave" style="display:none">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <div id="voicePlayback" style="display:none">
+        <audio id="voicePlayer" controls style="width:100%;border-radius:8px;margin:8px 0;"></audio>
+        <button class="cs-action-btn cs-send" id="voiceSendBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send to Station
+        </button>
+        <button class="cs-action-btn cs-discard" id="voiceDiscardBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Discard &amp; Re-record
+        </button>
+      </div>
+      <div class="cs-note">Max 60 seconds &bull; Available 24 &sol; 7</div>
+    </div>
+
+    <!-- Request panel -->
+    <div class="cs-panel" id="panel-request">
+      <p class="cs-desc">Search our library and request a song. Check the box to make it a dedication.</p>
+      <div class="ded-form">
+        <input class="ded-input" id="dedFrom" type="text" placeholder="Your name" maxlength="60" />
+
+        <!-- Dedication checkbox -->
+        <label class="ded-check-row" id="dedCheckRow">
+          <input type="checkbox" id="dedCheck" />
+          <span class="ded-check-box"></span>
+          <span class="ded-check-label">This is a dedication</span>
+        </label>
+
+        <!-- Dedication to field — shown only when checkbox checked -->
+        <input class="ded-input" id="dedTo" type="text" placeholder="Dedication to…" maxlength="60" style="display:none" />
+
+        <!-- Song search -->
+        <div class="song-search-wrap">
+          <input class="ded-input" id="songSearch" type="text" placeholder="Search song or artist…" maxlength="80" autocomplete="off" />
+          <div class="song-results" id="songResults" style="display:none"></div>
+          <div class="song-selected" id="songSelected" style="display:none">
+            <div class="song-sel-info">
+              <div class="song-sel-title" id="songSelTitle"></div>
+              <div class="song-sel-artist" id="songSelArtist"></div>
+            </div>
+            <button class="song-sel-clear" id="songSelClear">&times;</button>
+          </div>
+        </div>
+
+        <textarea class="ded-input ded-msg" id="dedMsg" placeholder="Message" maxlength="280" rows="3"></textarea>
+        <button class="cs-action-btn cs-send" id="dedSendBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send Request
+        </button>
+      </div>
+      <div class="cs-note">Available 24 &sol; 7 &bull; Auto-scheduled when automation is live</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- iOS Modal -->
+<div id="ios-modal">
+  <div class="ios-sheet">
+    <h3>Install on iPhone / iPad</h3>
+    <p>Add Yacht Rockin' Radio to your home screen &mdash; full screen, no browser bar, instant launch.</p>
+    <div class="ios-steps">
+      <div class="ios-step"><div class="ios-num">1</div><div class="ios-step-txt">Tap the <em>Share</em> button at the bottom of Safari</div></div>
+      <div class="ios-step"><div class="ios-num">2</div><div class="ios-step-txt">Scroll down and tap <em>"Add to Home Screen"</em></div></div>
+      <div class="ios-step"><div class="ios-num">3</div><div class="ios-step-txt">Tap <em>Add</em> in the top-right corner</div></div>
+    </div>
+    <button class="ios-ok" id="iosOk">Got it!</button>
+  </div>
+</div>
+
+<audio id="radioAudio" preload="none"></audio>
+
+<script>
+const STREAM_URL    = 'https://streaming.live365.com/a78484';
+const META_URL      = 'https://api.live365.com/station/a78484';
+const META_INTERVAL    = 12000;
+const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
+const APP_VERSION   = 'v1.5';
+const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
+
+// ── State ────────────────────────────────────────────────────────
+let isPlaying = false, isLoading = false, isMuted = false;
+let prevVol = 80, metaTimer = null, reconnectTimer = null;
+// Auto-reconnect: wantPlay = listener asked for audio; retries back off 2s→30s, give up after 8
+let wantPlay = false, reconnectTries = 0, stallTimer = null;
+let metaQueue = [], metaDrainIv = null;
+
+// ── Sponsor Configuration ───────────────────────────────────────
+// Set SPONSOR.active = true and fill fields to enable a sponsored splash.
+// logoUrl: image URL or empty string for text-only.
+// durationSecs: how long before skip is allowed (0 = always skippable).
+// skippable: show skip button at all times if true.
+const SPONSOR = {
+  active:       false,          // ← flip to true when a sponsor is live
+  name:         'Your Sponsor', // display name
+  logoUrl:      '',             // image URL for sponsor logo
+  message:      "Smooth sailing music brought to you by our friends.",
+  linkUrl:      '',             // tap logo/message opens this URL
+  durationSecs: 5,              // countdown before skip
+  skippable:    true,
+};
+
+// ── Sponsor Splash Logic ─────────────────────────────────────────
+function runSponsorSplash(onDone) {
+  if (!SPONSOR.active) { onDone(); return; }
+  const el     = document.getElementById('sponsor-splash');
+  const logo   = document.getElementById('sponsorLogo');
+  const msg    = document.getElementById('sponsorMsg');
+  const timer  = document.getElementById('sponsorTimer');
+  const skip   = document.getElementById('sponsorSkip');
+
+  msg.textContent = SPONSOR.message;
+  if (SPONSOR.logoUrl) {
+    logo.innerHTML = `<img src="${SPONSOR.logoUrl}" style="max-width:180px;max-height:70px;object-fit:contain;">`;
+  } else {
+    logo.textContent = SPONSOR.name;
+  }
+  if (SPONSOR.linkUrl) {
+    logo.style.cursor = 'pointer';
+    logo.onclick = () => window.open(SPONSOR.linkUrl, '_blank');
+  }
+
+  el.classList.add('show');
+  let secs = SPONSOR.durationSecs;
+  timer.textContent = secs;
+  skip.style.display = SPONSOR.skippable ? '' : 'none';
+
+  const tick = setInterval(() => {
+    secs--;
+    timer.textContent = Math.max(0, secs);
+    if (secs <= 0) { clearInterval(tick); finish(); }
+  }, 1000);
+
+  skip.addEventListener('click', () => { clearInterval(tick); finish(); }, { once: true });
+
+  function finish() {
+    el.classList.remove('show');
+    onDone();
+  }
+}
+
+// ── Version label ────────────────────────────────────────────────
+document.getElementById('appVersionLabel').textContent = APP_VERSION;
+
+// ── Ring Meter Visualizer — simulation-based, no CORS needed ─
+// Audio plays clean. Rings pulse OUTWARD from disc edge using
+// a perlin-like noise model that mimics real VU meter behavior.
+let vizRaf = null;
+const vizCanvas = document.getElementById('vizCanvas');
+const vizCtx    = vizCanvas.getContext('2d');
+
+// Three rings: green (bass) / yellow (mids) / red (highs)
+const RINGS = [
+  { color:[74,222,128],  speed:2.3, phase:0,    noiseScale:0.8  }, // green — bass, slow swell
+  { color:[250,204,21],  speed:3.7, phase:2.1,  noiseScale:1.1  }, // yellow — mids
+  { color:[248,113,113], speed:5.1, phase:4.4,  noiseScale:1.5  }, // red — highs, faster
+];
+// Smoothed energy per ring
+const E = [0.0, 0.0, 0.0];
+// "Noise" seeds that evolve over time
+const T = [0.0, 0.0, 0.0];
+
+// Simple smooth noise: sum of sines at different frequencies
+function smoothNoise(t, scale) {
+  return (
+    Math.sin(t * scale * 1.0) * 0.35 +
+    Math.sin(t * scale * 1.7 + 1.3) * 0.30 +
+    Math.sin(t * scale * 2.9 + 2.7) * 0.20 +
+    Math.sin(t * scale * 4.3 + 0.8) * 0.15
+  ) * 0.5 + 0.5; // remap to [0,1]
+}
+
+function resizeVizCanvas() {
+  // Canvas lives inside the disc — size it to 280% of disc so rings extend outside
+  const disc = document.getElementById('artDisc');
+  const discSize = disc.clientWidth || 200;
+  const canvasSize = discSize * 2.8;
+  const dpr = window.devicePixelRatio || 1;
+  vizCanvas.width  = canvasSize * dpr;
+  vizCanvas.height = canvasSize * dpr;
+  vizCanvas.style.width  = canvasSize + 'px';
+  vizCanvas.style.height = canvasSize + 'px';
+  vizCtx.setTransform(1, 0, 0, 1, 0, 0);
+  vizCtx.scale(dpr, dpr);
+}
+
+function startViz() {
+  if (vizRaf) return; // already running — don't spawn second loop
+  resizeVizCanvas();
+  vizCanvas.classList.add('active');
+  lastTime = 0;
+  vizRaf = requestAnimationFrame(drawViz);
+}
+
+function stopViz() {
+  vizCanvas.classList.remove('active');
+  if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = null; }
+  E[0] = E[1] = E[2] = 0;
+}
+
+let lastTime = 0;
+function drawViz(ts = 0) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+
+  const dpr = window.devicePixelRatio || 1;
+  const W   = vizCanvas.width  / dpr;
+  const H   = vizCanvas.height / dpr;
+  const cx  = W / 2, cy = H / 2;
+
+  vizCtx.clearRect(0, 0, W, H);
+
+  // Canvas is 2.8× disc diameter. Disc radius in canvas coords = half-canvas / 2.8
+  const halfCanvas = Math.min(W, H) / 2;
+  const discR      = halfCanvas / 2.8;
+  const ringGap    = discR * 0.16;          // gap between rings = 16% of disc radius
+  const maxPulse   = discR * 0.09;          // max outward pulse = 9% of disc radius
+  const baseStroke = Math.max(1.5, discR * 0.045);
+  const maxR       = halfCanvas - baseStroke * 2.5; // never reach canvas edge
+
+  RINGS.forEach((ring, i) => {
+    T[i] += dt * ring.speed;
+    const raw = smoothNoise(T[i], ring.noiseScale);
+    E[i] += (raw - E[i]) * (raw > E[i] ? 0.55 : 0.08);
+    const e = E[i];
+
+    const baseR  = discR + ringGap * (i + 1);
+    const radius = Math.min(baseR + e * maxPulse, maxR - ringGap * (2 - i));
+    const stroke = baseStroke * (0.4 + e * 0.9);
+    const [r,g,b] = ring.color;
+    const alpha = 0.25 + e * 0.70;
+
+    vizCtx.beginPath();
+    vizCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+    vizCtx.strokeStyle = `rgba(${r},${g},${b},${alpha.toFixed(2)})`;
+    vizCtx.lineWidth = stroke;
+    vizCtx.stroke();
+
+    if (e > 0.25) {
+      vizCtx.beginPath();
+      vizCtx.arc(cx, cy, radius + stroke, 0, Math.PI * 2);
+      vizCtx.strokeStyle = `rgba(${r},${g},${b},${(e * 0.18).toFixed(2)})`;
+      vizCtx.lineWidth = stroke * 2.5; // reduced glow spread
+      vizCtx.stroke();
+    }
+  });
+
+  vizRaf = requestAnimationFrame(drawViz); // schedule next at END, not top
+}
+
+window.addEventListener('resize', () => { if (vizCanvas.classList.contains('active')) resizeVizCanvas(); });
+
+const audio       = document.getElementById('radioAudio');
+const playBtn     = document.getElementById('playBtn');
+const iconPlay    = document.getElementById('iconPlay');
+const iconPause   = document.getElementById('iconPause');
+const muteBtn     = document.getElementById('muteBtn');
+const ml1         = document.getElementById('ml1');
+const ml2         = document.getElementById('ml2');
+const mw          = document.getElementById('mw');
+const refreshBtn  = document.getElementById('refreshBtn');
+const volSlider   = document.getElementById('volSlider');
+const volPct      = document.getElementById('volPct');
+const trackTitle  = document.getElementById('trackTitle');
+const trackArtist = document.getElementById('trackArtist');
+const artDisc     = document.getElementById('artDisc');
+const errBar      = document.getElementById('errBar');
+const errMsg      = document.getElementById('errMsg');
+const statusDot   = document.getElementById('statusDot');
+const statusTxt   = document.getElementById('statusTxt');
+const liveBadge   = document.getElementById('liveBadge');
+const rings = ['ring1','ring2','ring3'].map(id => document.getElementById(id)).filter(Boolean);
+
+setTimeout(() => {
+  document.getElementById('splash').classList.add('gone');
+  // Show sponsor splash after main splash fades — only if configured
+  setTimeout(() => runSponsorSplash(() => {}), 900);
+}, 2800);
+audio.volume = 0.80;
+
+function setStatus(txt, live) {
+  statusTxt.textContent = txt;
+  statusDot.className = 'dot' + (live ? ' live' : '');
+}
+
+function setPlayState(s) {
+  playBtn.classList.remove('loading');
+  iconPlay.style.display = 'none';
+  iconPause.style.display = 'none';
+  if (s === 'idle') {
+    iconPlay.style.display = 'block';
+    artDisc.classList.remove('spinning');
+    rings.forEach(r => r.classList.remove('playing'));
+    liveBadge.style.display = 'none';
+    setStatus('Tap play to start', false);
+    renderRecents(); // clear placeholder on stop
+  } else if (s === 'loading') {
+    iconPlay.style.display = 'block';
+    playBtn.classList.add('loading');
+    setStatus('Connecting\u2026', false);
+    liveBadge.style.display = 'none';
+  } else if (s === 'playing') {
+    iconPause.style.display = 'block';
+    artDisc.classList.add('spinning');
+    rings.forEach(r => r.classList.add('playing'));
+    liveBadge.style.display = 'flex';
+    errBar.classList.remove('show');
+    setStatus('Live \u00B7 Internet Radio', true);
+    renderRecents(); // show placeholder immediately if no tracks yet
+  } else if (s === 'error') {
+    iconPlay.style.display = 'block';
+    artDisc.classList.remove('spinning');
+    rings.forEach(r => r.classList.remove('playing'));
+    liveBadge.style.display = 'none';
+    setStatus('Stream error \u2014 tap play to retry', false);
+    errBar.classList.add('show');
+  }
+}
+
+function startStream() {
+  wantPlay = true;
+  isLoading = true;
+  setPlayState('loading');
+  errBar.classList.remove('show');
+  audio.src = STREAM_URL + '?t=' + Date.now();
+  audio.load();
+  const p = audio.play();
+  if (p) p.catch(e => { console.warn(e); showError('Tap play to start.'); isPlaying = false; isLoading = false; });
+}
+
+function stopStream() {
+  wantPlay = false; reconnectTries = 0;
+  if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
+  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+  audio.pause(); audio.src = '';
+  isPlaying = false; isLoading = false;
+  setPlayState('idle');
+  trackTitle.innerHTML = '<span class="track-loading">Tap play to tune in\u2026</span>';
+  trackArtist.textContent = '';
+  const amzBtn = document.getElementById('amzBtn');
+  if (amzBtn) amzBtn.style.display = 'none';
+  resetNowPlayingStrip();
+  stopMeta(); stopViz(); resetDiscArt();
+  voteBarHide();
+}
+
+function showError(msg) { errMsg.textContent = msg; errBar.classList.add('show'); setPlayState('error'); }
+
+playBtn.addEventListener('click', () => { if (isLoading) return; isPlaying ? stopStream() : startStream(); });
+refreshBtn.addEventListener('click', () => { if (isPlaying || isLoading) { stopStream(); setTimeout(startStream, 400); } });
+
+audio.addEventListener('playing', () => {
+  isPlaying = true; isLoading = false;
+  reconnectTries = 0;
+  if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
+  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+  setPlayState('playing'); startMeta(); startViz();
+  // Clear "Tap play to tune in" — metadata will populate within 12s
+  trackTitle.textContent  = '';
+  trackArtist.textContent = '';
+  // Initialise MediaSession immediately; art+track arrive via fetchMeta
+  updateMediaSession(
+    trackTitle.textContent || "Yacht Rockin' Radio",
+    trackArtist.textContent || 'WYRR-DB',
+    null
+  );
+});
+audio.addEventListener('waiting', () => { if (isPlaying) setStatus('Buffering\u2026', false); });
+// ── Auto-reconnect ─────────────────────────────────────────────
+// Live streams drop (cell handoff, Wi-Fi sleep, server blip). If the listener
+// still wants audio, quietly reconnect with backoff instead of going silent.
+function scheduleReconnect(reason) {
+  if (!wantPlay || reconnectTimer) return;
+  if (!navigator.onLine) return;              // 'online' listener resumes us
+  if (reconnectTries >= 8) {
+    isPlaying = false; isLoading = false;
+    showError('Stream unavailable. Tap play to retry.');
+    stopMeta(); stopViz();
+    return;
+  }
+  const delay = Math.min(30000, 2000 * Math.pow(2, reconnectTries)); // 2,4,8,16,30…
+  reconnectTries++;
+  setStatus('Reconnecting\u2026', false);
+  console.warn('YRR reconnect #' + reconnectTries + ' in ' + delay + 'ms (' + reason + ')');
+  reconnectTimer = setTimeout(() => { reconnectTimer = null; if (wantPlay) startStream(); }, delay);
+}
+audio.addEventListener('error',   () => {
+  if (wantPlay) { isPlaying = false; scheduleReconnect('error'); return; }
+  isPlaying = false; isLoading = false;
+  showError('Stream unavailable. Tap play to retry.');
+  stopMeta(); stopViz();
+});
+audio.addEventListener('ended',   () => { isPlaying = false; scheduleReconnect('ended'); });
+// Stalled/waiting too long = data stopped arriving. Give it 12s, then reconnect.
+function armStallWatch(reason) {
+  if (!wantPlay || stallTimer) return;
+  stallTimer = setTimeout(() => {
+    stallTimer = null;
+    if (wantPlay && (audio.paused || audio.readyState < 3)) scheduleReconnect(reason);
+  }, 12000);
+}
+audio.addEventListener('stalled', () => armStallWatch('stalled'));
+audio.addEventListener('waiting', () => armStallWatch('waiting'));
+window.addEventListener('online', () => {
+  if (wantPlay && !isPlaying) { reconnectTries = 0; startStream(); }
+});
+// Back from lock screen / another app: if audio died while away, restart it.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && wantPlay && audio.paused && !isLoading && !reconnectTimer) {
+    reconnectTries = 0; startStream();
+  }
+});
+
+// Volume
+volSlider.addEventListener('input', () => {
+  const v = +volSlider.value;
+  audio.volume = v / 100;
+  volSlider.style.setProperty('--vol', v + '%');
+  volPct.textContent = v + '%';
+  if (v === 0) { isMuted = true; showMuted(); } else { isMuted = false; showUnmuted(); prevVol = v; }
+});
+function showMuted()   { ml1.style.display='block'; ml2.style.display='block'; mw.style.display='none'; document.getElementById('vw1').style.display='none'; document.getElementById('vw2').style.display='none'; }
+function showUnmuted() { ml1.style.display='none';  ml2.style.display='none';  mw.style.display='block'; document.getElementById('vw1').style.display='block'; document.getElementById('vw2').style.display='block'; }
+muteBtn.addEventListener('click', () => {
+  if (isMuted) {
+    isMuted = false; audio.volume = prevVol/100;
+    volSlider.value = prevVol; volSlider.style.setProperty('--vol', prevVol+'%'); volPct.textContent = prevVol+'%';
+    showUnmuted();
+  } else {
+    prevVol = +volSlider.value || 80; isMuted = true; audio.volume = 0;
+    volSlider.value = 0; volSlider.style.setProperty('--vol','0%'); volPct.textContent = '0%';
+    showMuted();
+  }
+});
+
+// ── Album Art via MusicBrainz Cover Art Archive ───────────────
+// Chain: Live365 metadata → MusicBrainz search → Cover Art Archive → disc
+let currentArtKey = '';   // "Artist — Title" — skip re-fetch if same track
+
+async function fetchAlbumArt(artist, title) {
+  const key = `${artist}||${title}`;
+  if (key === currentArtKey) return;
+  currentArtKey = key;
+
+  try {
+    // 1. Search MusicBrainz
+    const q = encodeURIComponent(`recording:"${title}" AND artist:"${artist}"`);
+    const mbRes = await fetch(
+      `https://musicbrainz.org/ws/2/recording/?query=${q}&limit=5&fmt=json`,
+      { headers: { 'User-Agent': 'YachtRockinRadio/1.0 (yachtrockinradio.com)' } }
+    );
+    if (!mbRes.ok) return;
+    const mbData = await mbRes.json();
+
+    const recordings = mbData?.recordings || [];
+    for (const rec of recordings) {
+      for (const rel of (rec?.releases || [])) {
+        if (!rel.id) continue;
+        const artUrl = `https://coverartarchive.org/release/${rel.id}/front-500`;
+
+        // Load via <img> — browser follows the 307 redirect automatically.
+        // We create a hidden img, wait for it to decode, then draw it onto a
+        // canvas blob so we have a same-origin data URL we can set as background.
+        const blob = await new Promise(resolve => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            try {
+              const cvs = document.createElement('canvas');
+              cvs.width = img.naturalWidth || 500;
+              cvs.height = img.naturalHeight || 500;
+              cvs.getContext('2d').drawImage(img, 0, 0);
+              cvs.toBlob(b => resolve(b), 'image/jpeg', 0.85);
+            } catch(_) {
+              // crossOrigin tainted — fall back to direct URL
+              resolve('direct:' + img.src);
+            }
+          };
+          img.onerror = () => resolve(null);
+          img.src = artUrl;
+        });
+
+        if (!blob) continue;
+
+        let finalUrl;
+        if (typeof blob === 'string' && blob.startsWith('direct:')) {
+          finalUrl = blob.slice(7); // use raw URL if canvas blocked
+        } else {
+          finalUrl = URL.createObjectURL(blob);
+        }
+        applyDiscArt(finalUrl);
+        return;
+      }
+    }
+  } catch(e) { /* silent */ }
+}
+
+// startMeta / stopMeta defined after fetchMeta below
+
+// Drawer
+const menuBtn = document.getElementById('menuBtn');
+const drawer  = document.getElementById('drawer');
+const overlay = document.getElementById('drawerOverlay');
+function openMenu()  { drawer.classList.add('open'); overlay.classList.add('open'); menuBtn.classList.add('open'); }
+function closeMenu() { drawer.classList.remove('open'); overlay.classList.remove('open'); menuBtn.classList.remove('open'); }
+menuBtn.addEventListener('click', () => drawer.classList.contains('open') ? closeMenu() : openMenu());
+overlay.addEventListener('click', closeMenu);
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setTimeout(closeMenu, 150)));
+
+// Service worker
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// Install
+const isStandalone = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+let deferredPrompt = null;
+const banner = document.getElementById('install-banner');
+const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; if (!isStandalone) setTimeout(() => banner.classList.add('show'), 6000); });
+installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; banner.classList.remove('show'); });
+document.getElementById('bannerClose').addEventListener('click', () => banner.classList.remove('show'));
+window.addEventListener('appinstalled', () => banner.classList.remove('show'));
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+if (isIOS && isSafari && !isStandalone) {
+  setTimeout(() => {
+    banner.classList.add('show');
+    installBtn.textContent = 'How to Install';
+    installBtn.onclick = () => { banner.classList.remove('show'); document.getElementById('ios-modal').classList.add('open'); };
+  }, 6000);
+}
+document.getElementById('iosOk').addEventListener('click', () => document.getElementById('ios-modal').classList.remove('open'));
+document.getElementById('ios-modal').addEventListener('click', e => { if (e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+// ── Contact Sheet ─────────────────────────────────────────────
+const contactModal = document.getElementById('contact-modal');
+const STATION_EMAIL = 'yachtrockinshow@gmail.com';
+
+function openContact() {
+  closeMenu();
+  contactModal.classList.add('open');
+  switchTab('call');
+  loadLibrary(); // load eagerly on every open — noop if already loaded
+}
+function closeContact() { contactModal.classList.remove('open'); stopRecordingClean(); }
+
+document.getElementById('contactClose').addEventListener('click', closeContact);
+contactModal.addEventListener('click', e => { if (e.target === contactModal) closeContact(); });
+
+// Tab switching
+function switchTab(name) {
+  document.querySelectorAll('.cs-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.cs-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
+}
+document.querySelectorAll('.cs-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+
+// ── Voice Recorder ──────────────────────────────────────────
+let mediaRecorder = null, recChunks = [], recTimer = null, recSeconds = 0;
+const MAX_REC_SECS = 60;
+
+const voiceRecBtn    = document.getElementById('voiceRecBtn');
+const voiceRecIcon   = document.getElementById('voiceRecIcon');
+const voiceLabel     = document.getElementById('voiceLabel');
+const voiceTimerEl   = document.getElementById('voiceTimer');
+const voiceWave      = document.getElementById('voiceWave');
+const voicePlayback  = document.getElementById('voicePlayback');
+const voicePlayer    = document.getElementById('voicePlayer');
+const voiceSendBtn   = document.getElementById('voiceSendBtn');
+const voiceDiscardBtn= document.getElementById('voiceDiscardBtn');
+
+function fmtTime(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+voiceRecBtn.addEventListener('click', async () => {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    // Stop recording
+    mediaRecorder.stop();
+    return;
+  }
+  // Start recording
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recChunks = []; recSeconds = 0;
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      clearInterval(recTimer);
+      const blob = new Blob(recChunks, { type: 'audio/webm' });
+      voicePlayer.src = URL.createObjectURL(blob);
+      // UI: show playback
+      voiceRecBtn.classList.remove('recording');
+      voiceWave.style.display = 'none';
+      voiceTimerEl.style.display = 'none';
+      voiceLabel.textContent = 'Recording ready';
+      voicePlayback.style.display = 'block';
+    };
+
+    mediaRecorder.start();
+    voiceRecBtn.classList.add('recording');
+    voiceLabel.textContent = 'Recording… tap to stop';
+    voiceTimerEl.style.display = 'block';
+    voiceWave.style.display = 'flex';
+    voicePlayback.style.display = 'none';
+
+    // Tick timer
+    recTimer = setInterval(() => {
+      recSeconds++;
+      voiceTimerEl.textContent = fmtTime(recSeconds);
+      if (recSeconds >= MAX_REC_SECS) mediaRecorder.stop(); // auto-stop at 60s
+    }, 1000);
+
+  } catch(e) {
+    showToast('Microphone access denied');
+  }
+});
+
+voiceDiscardBtn.addEventListener('click', () => {
+  voicePlayback.style.display = 'none';
+  voiceLabel.textContent = 'Tap to record';
+  voiceTimerEl.style.display = 'none';
+  voiceWave.style.display = 'none';
+  voiceRecBtn.classList.remove('recording');
+  recChunks = [];
+  if (voicePlayer.src) { URL.revokeObjectURL(voicePlayer.src); voicePlayer.src = ''; }
+});
+
+voiceSendBtn.addEventListener('click', () => {
+  // Best available path: Web Share API with file, fallback to mailto
+  const blob = new Blob(recChunks, { type: 'audio/webm' });
+  const file = new File([blob], `yrr-voicememo-${Date.now()}.webm`, { type: 'audio/webm' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({
+      files: [file],
+      title: "Voice memo for Yacht Rockin' Radio",
+      text: "Hey Capt. Hugh — voice message from a listener!"
+    }).catch(() => fallbackVoiceEmail());
+  } else {
+    fallbackVoiceEmail();
+  }
+});
+
+function fallbackVoiceEmail() {
+  // mailto fallback — opens email client; user attaches manually
+  const subject = encodeURIComponent("Voice memo for Yacht Rockin' Radio");
+  const body    = encodeURIComponent("Hey Capt. Hugh!\n\nI recorded a voice memo for the show. Attaching it here.\n\n— A listener");
+  window.location.href = `mailto:${STATION_EMAIL}?subject=${subject}&body=${body}`;
+  showToast("Email opened — attach your recording!");
+}
+
+function stopRecordingClean() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+  clearInterval(recTimer);
+}
+
+// ── Song Library Search ────────────────────────────────────────
+// library.json: [[artist, title, folder, year], ...]
+let library = [];
+let selectedSong = null; // { artist, title, folder, year }
+let searchTimer  = null;
+
+async function loadLibrary() {
+  if (library.length) return; // already loaded
+  try {
+    const r = await fetch('library.json');
+    if (r.ok) library = await r.json();
+  } catch(e) { /* silent — search box still works as free text */ }
+}
+
+const songSearch    = document.getElementById('songSearch');
+const songResults   = document.getElementById('songResults');
+const songSelected  = document.getElementById('songSelected');
+const songSelTitle  = document.getElementById('songSelTitle');
+const songSelArtist = document.getElementById('songSelArtist');
+const songSelClear  = document.getElementById('songSelClear');
+
+songSearch.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  const q = songSearch.value.trim().toLowerCase();
+  if (q.length < 2) { songResults.style.display = 'none'; return; }
+  // Show loading indicator while library is fetching
+  if (!library.length) {
+    songResults.innerHTML = '<div class="song-result-item"><div class="sri-title" style="color:var(--muted)">Loading library…</div></div>';
+    songResults.style.display = 'block';
+    loadLibrary().then(() => { if (songSearch.value.trim().length >= 2) runSearch(songSearch.value.trim().toLowerCase()); });
+    return;
+  }
+  searchTimer = setTimeout(() => runSearch(q), 180);
+});
+
+function runSearch(q) {
+  // Core categories always searchable
+  const CORE_CATS = new Set(['AM Gold','DeepDive','Retro','SmoothFM','Summer','YachtRock','YarAndB']);
+
+  // Holiday windows — flag values match library.json field [4]
+  // 1=Christmas(Dec1-Jan2), 2=Halloween(Oct1-Nov1), 3=Irish(Mar10-18), 4=Thanksgiving(Nov20-30)
+  const now = new Date();
+  const mo = now.getMonth() + 1; // 1-12
+  const dy = now.getDate();
+  const activeHolidays = new Set();
+  if ((mo === 12) || (mo === 1 && dy <= 2))        activeHolidays.add(1); // Christmas
+  if (mo === 10 || (mo === 9 && dy >= 25))          activeHolidays.add(2); // Halloween (late Sep–Oct)
+  if (mo === 3 && dy >= 10 && dy <= 18)             activeHolidays.add(3); // St. Patrick's
+  if (mo === 11 && dy >= 20 && dy <= 30)            activeHolidays.add(4); // Thanksgiving
+
+  const terms = q.split(/\s+/).filter(Boolean);
+  const hits = library.filter(r => {
+    const [artist, title, folder, year, flag] = r;
+    const inCore    = CORE_CATS.has(folder);
+    const inHoliday = flag > 0 && activeHolidays.has(flag);
+    if (!inCore && !inHoliday) return false;
+    const hay = `${artist} ${title}`.toLowerCase();
+    return terms.every(t => hay.includes(t));
+  }).slice(0, 12);
+
+  if (!hits.length) {
+    songResults.innerHTML = `
+      <div class="song-result-item">
+        <div class="sri-title" style="color:var(--muted)">Not in our library yet</div>
+        <div class="sri-artist" style="color:var(--muted);font-size:10px;margin-top:3px;">
+          Use the Message field below to suggest it for consideration!
+        </div>
+      </div>`;
+    songResults.style.display = 'block';
+    return;
+  }
+
+  songResults.innerHTML = hits.map(([artist, title, folder, year]) => `
+    <div class="song-result-item" data-artist="${esc(artist)}" data-title="${esc(title)}" data-folder="${esc(folder)}" data-year="${esc(year)}">
+      <span class="sri-cat">${esc(folder)}</span>
+      <div class="sri-title">${esc(title)}</div>
+      <div class="sri-artist">${esc(artist)}${year && year !== '0' ? ' &bull; ' + year : ''}</div>
+    </div>`).join('');
+  songResults.style.display = 'block';
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+songResults.addEventListener('click', e => {
+  const item = e.target.closest('.song-result-item');
+  if (!item) return;
+  selectedSong = {
+    artist: item.dataset.artist,
+    title:  item.dataset.title,
+    folder: item.dataset.folder,
+    year:   item.dataset.year
+  };
+  songSearch.style.display  = 'none';
+  songResults.style.display = 'none';
+  songSelTitle.textContent  = selectedSong.title;
+  songSelArtist.textContent = `${selectedSong.artist}${selectedSong.year && selectedSong.year !== '0' ? ' · ' + selectedSong.year : ''}`;
+  songSelected.style.display = 'flex';
+});
+
+// Close results on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.song-search-wrap')) songResults.style.display = 'none';
+});
+
+songSelClear.addEventListener('click', () => {
+  selectedSong = null;
+  songSearch.value = '';
+  songSearch.style.display = '';
+  songSelected.style.display = 'none';
+});
+
+// ── Dedication checkbox toggle ─────────────────────────────────
+const dedCheck  = document.getElementById('dedCheck');
+const dedToField = document.getElementById('dedTo');
+dedCheck.addEventListener('change', () => {
+  dedToField.style.display = dedCheck.checked ? 'block' : 'none';
+  if (!dedCheck.checked) dedToField.value = '';
+});
+
+// ── Request / Dedication Send — automation-ready structured email ──
+document.getElementById('dedSendBtn').addEventListener('click', () => {
+  const from      = document.getElementById('dedFrom').value.trim();
+  const isDed     = dedCheck.checked;
+  const to        = isDed ? dedToField.value.trim() : '';
+  const msg       = document.getElementById('dedMsg').value.trim();
+
+  if (!from) { showToast('Please enter your name'); return; }
+  if (isDed && !to) { showToast('Please enter who the dedication is for'); return; }
+
+  const song = selectedSong || { artist:'', title: songSearch.value.trim(), folder:'', year:'' };
+
+  const type = isDed ? 'DEDICATION_REQUEST' : 'SONG_REQUEST';
+  const payload = {
+    version: '1.0',
+    type,
+    requestedAt: new Date().toISOString(),
+    listener: from,
+    dedicateTo: to || null,
+    isDedication: isDed,
+    song: {
+      artist: song.artist,
+      title:  song.title,
+      folder: song.folder,
+      year:   song.year
+    },
+    message: msg,
+    automation: {
+      checkRecentlyPlayed: true,
+      avoidRepeatHours: 4,
+      preferredCategory: song.folder || 'YachtRock',
+      insertStrategy: 'next_available_slot',
+      notifyOnSchedule: true
+    }
+  };
+
+  const subjectTag = isDed ? 'DEDICATION' : 'REQUEST';
+  const subjectSong = song.title ? ` · ${song.title}` : '';
+  const subjectTo   = isDed && to ? ` → ${to}` : '';
+  const subject = `[YRR-${subjectTag}] ${from}${subjectTo}${subjectSong}`;
+
+  let body = isDed ? `DEDICATION REQUEST — Yacht Rockin' Radio\n` : `SONG REQUEST — Yacht Rockin' Radio\n`;
+  body += `${'─'.repeat(40)}\n`;
+  body += `From listener: ${from}\n`;
+  if (isDed && to) body += `Dedicated to:  ${to}\n`;
+  if (song.title)  body += `Song:          ${song.title}\n`;
+  if (song.artist) body += `Artist:        ${song.artist}\n`;
+  if (song.folder) body += `Library cat:   ${song.folder}\n`;
+  if (msg)         body += `\nMessage:\n"${msg}"\n`;
+  body += `\nSent: ${new Date().toLocaleString()}\n`;
+  body += `\n${'─'.repeat(40)}\n`;
+  body += `AUTOMATION PAYLOAD (do not edit):\n---BEGIN-YRR-REQUEST---\n`;
+  body += JSON.stringify(payload, null, 2);
+  body += `\n---END-YRR-REQUEST---\n`;
+
+  window.location.href = `mailto:${STATION_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  showToast('Opening your email app…');
+
+  // Reset form
+  ['dedFrom','dedMsg'].forEach(id => { document.getElementById(id).value = ''; });
+  dedToField.value = ''; dedToField.style.display = 'none';
+  dedCheck.checked = false;
+  selectedSong = null;
+  songSearch.value = '';
+  songSearch.style.display = '';
+  songSelected.style.display = 'none';
+});
+
+// ── MediaSession (lock screen / control center / Wear OS) ────────
+function updateMediaSession(title, artist, artUrl) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:  title  || "Yacht Rockin' Radio",
+    artist: artist || 'WYRR-DB',
+    album:  "Live Stream",
+    artwork: artUrl
+      ? [{ src: artUrl, sizes:'512x512', type:'image/jpeg' }]
+      : [{ src:'icons/icon-512.png', sizes:'512x512', type:'image/png' }]
+  });
+  navigator.mediaSession.setActionHandler('play',  () => { if (!isPlaying) startStream(); });
+  navigator.mediaSession.setActionHandler('pause', () => { if (isPlaying)  stopStream(); });
+  navigator.mediaSession.setActionHandler('stop',  () => stopStream());
+}
+
+// ── Sleep Timer ──────────────────────────────────────────────────
+const SLEEP_STEPS = [0, 15, 30, 60]; // minutes; 0 = off
+let sleepStep = 0, sleepTimer = null;
+const sleepBtn   = document.getElementById('sleepBtn');
+const sleepLabel = document.getElementById('sleepLabel');
+
+sleepBtn.addEventListener('click', () => {
+  // Advance through steps
+  sleepStep = (sleepStep + 1) % SLEEP_STEPS.length;
+  const mins = SLEEP_STEPS[sleepStep];
+  if (sleepTimer) { clearTimeout(sleepTimer); sleepTimer = null; }
+  if (mins === 0) {
+    sleepLabel.textContent = 'Sleep';
+    sleepBtn.classList.remove('active');
+    showToast('Sleep timer off');
+  } else {
+    sleepLabel.textContent = `${mins}m`;
+    sleepBtn.classList.add('active');
+    showToast(`Stops in ${mins} min`);
+    sleepTimer = setTimeout(() => {
+      stopStream();
+      sleepStep = 0;
+      sleepLabel.textContent = 'Sleep';
+      sleepBtn.classList.remove('active');
+      showToast('Sleep timer — stream stopped');
+    }, mins * 60 * 1000);
+  }
+});
+
+// ── Offline Detection ────────────────────────────────────────────
+const offlineBar = document.getElementById('offline-bar');
+function updateOnlineStatus() {
+  if (navigator.onLine) {
+    offlineBar.classList.remove('show');
+    // Auto-reconnect if was playing when offline
+    if (isPlaying === false && isLoading === false) { /* user can manually reconnect */ }
+  } else {
+    offlineBar.classList.add('show');
+  }
+}
+window.addEventListener('online',  updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus(); // check on load
+
+// ── Recently Played ──────────────────────────────────────────────
+const MAX_RECENTS = 15;
+let recentTracks = []; // [{title, artist, time}]
+
+function addToRecents(title, artist) {
+  if (!title) return;
+  // Don't duplicate consecutive same track
+  if (recentTracks.length && recentTracks[0].title === title && recentTracks[0].artist === artist) return;
+  recentTracks.unshift({ title, artist, time: new Date() });
+  if (recentTracks.length > MAX_RECENTS) recentTracks = recentTracks.slice(0, MAX_RECENTS);
+  renderRecents();
+}
+
+function renderRecents() {
+  const container = document.getElementById('recentsList');
+  const section   = document.getElementById('drawerRecents');
+  if (!recentTracks.length) {
+    // Show placeholder if playing but no tracks yet (CORS / metadata pending)
+    if (isPlaying) {
+      section.style.display = 'block';
+      container.innerHTML = `<div class="recent-item">
+        <span class="recent-num" style="color:var(--muted)">—</span>
+        <div class="recent-info">
+          <div class="recent-title" style="color:var(--muted);font-style:italic">Waiting for track info…</div>
+          <div class="recent-artist" style="color:var(--muted);font-size:10px">Needs deployed URL for metadata</div>
+        </div>
+      </div>`;
+    } else {
+      section.style.display = 'none';
+    }
+    return;
+  }
+  section.style.display = 'block';
+  container.innerHTML = recentTracks.map((t, i) => {
+    const ago = fmtAgo(t.time);
+    return `<div class="recent-item">
+      <span class="recent-num">${i + 1}</span>
+      <div class="recent-info">
+        <div class="recent-title">${escHtml(t.title)}</div>
+        <div class="recent-artist">${escHtml(t.artist)}</div>
+      </div>
+      <span class="recent-time">${ago}</span>
+    </div>`;
+  }).join('');
+}
+
+function fmtAgo(date) {
+  const s = Math.round((Date.now() - date) / 1000);
+  if (s < 60)  return 'just now';
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  return `${Math.floor(s/3600)}h ago`;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Refresh "ago" timestamps every minute
+setInterval(() => { if (recentTracks.length) renderRecents(); }, 60000);
+
+// ── renderTrackUI — applies one track to all display surfaces ──────────
+function renderTrackUI(title, artist) {
+  trackTitle.textContent  = title;
+  trackArtist.textContent = artist;
+  document.getElementById('dtoTitle').textContent  = title;
+  document.getElementById('dtoArtist').textContent = artist;
+  updateNowPlayingStrip(title, artist);
+  const amzBtn = document.getElementById('amzBtn');
+  if (amzBtn) {
+    const q = encodeURIComponent(`${artist} ${title}`);
+    amzBtn.href = `https://www.amazon.com/s?k=${q}&i=digital-music&tag=yachtrockradi-20`;
+    amzBtn.style.display = 'inline-flex';
+  }
+  addToRecents(title, artist);
+  if (artist && title) fetchAlbumArt(artist, title);
+  voteBarShow();
+}
+
+// ── Metadata display queue — holds updates until audio buffer catches up ──
+// Live365 metadata arrives ~45s before the audio. Instead of showing the
+// next song title while the current one is still playing, we timestamp each
+// incoming track and only render it after METADATA_DELAY_MS has elapsed.
+// Exception: the very first track after tune-in displays immediately so the
+// listener isn't staring at a blank title for 45 seconds.
+function queueTrackMeta(title, artist) {
+  // Already showing this track — nothing to do
+  if (trackTitle.textContent === title && trackArtist.textContent === artist) return;
+  // Already in queue — don't double-enqueue
+  if (metaQueue.some(m => m.title === title && m.artist === artist)) return;
+
+  // First display after tune-in (trackTitle is blank) — show immediately
+  if (!trackTitle.textContent.trim()) {
+    metaQueue = [];
+    renderTrackUI(title, artist);
+    return;
+  }
+
+  // All subsequent tracks — hold for METADATA_DELAY_MS
+  metaQueue.push({ title, artist, displayAt: Date.now() + METADATA_DELAY_MS });
+}
+
+function startMetaDrain() {
+  if (metaDrainIv) return;
+  metaDrainIv = setInterval(() => {
+    if (!metaQueue.length) return;
+    const now = Date.now();
+    while (metaQueue.length && metaQueue[0].displayAt <= now) {
+      const track = metaQueue.shift();
+      renderTrackUI(track.title, track.artist);
+    }
+  }, 1000);
+}
+
+function stopMetaDrain() {
+  if (metaDrainIv) { clearInterval(metaDrainIv); metaDrainIv = null; }
+  metaQueue = []; // flush stale queue on stream stop
+}
+
+// ── fetchMeta — now playing + art + recents + overlay + MediaSession ──
+async function fetchMeta() {
+  let d = null;
+
+  try {
+    const r = await fetch(
+      'https://api.live365.com/station/a78484',
+      { cache: 'no-store', headers: { Accept: 'application/json' } }
+    );
+    if (r.ok) d = JSON.parse(await r.text());
+  } catch(e) {
+    console.warn('[YRR] fetchMeta failed:', e.message);
+  }
+
+  if (!d) return;
+
+  // api.live365.com uses hyphenated key "current-track" — must use bracket notation
+  const ct     = d['current-track'] || d['last-played'] || {};
+  const title  = ct.title      || ct.song        || d?.title  || '';
+  const artist = ct.artist     || ct.artist_name || d?.artist || '';
+
+  if (title) {
+    queueTrackMeta(title, artist);
+  } else {
+    console.warn('[YRR] no title. current-track keys:', Object.keys(ct).join(', '),
+      '| sample:', JSON.stringify(ct).slice(0, 200));
+  }
+}
+
+// ── applyDiscArt — set disc bg + app bg + MediaSession artwork ──
+function applyDiscArt(url) {
+  // Image was already verified loaded by fetchAlbumArt — apply directly
+  artDisc.classList.add('art-updating');
+  setTimeout(() => {
+    artDisc.style.backgroundImage    = `url("${url}")`;
+    artDisc.style.backgroundSize     = 'cover';
+    artDisc.style.backgroundPosition = 'center';
+    artDisc.classList.remove('art-updating');
+    artDisc.classList.add('has-art');
+    document.getElementById('app').style.setProperty('--app-bg', `url("${url}")`);
+    document.getElementById('app').classList.add('has-art');
+    updateMediaSession(
+      trackTitle.textContent,
+      trackArtist.textContent,
+      url
+    );
+  }, 250);
+}
+
+function resetDiscArt() {
+  currentArtKey = '';
+  artDisc.style.backgroundImage    = '';
+  artDisc.style.backgroundSize     = '';
+  artDisc.style.backgroundPosition = '';
+  artDisc.classList.remove('has-art');
+  const app = document.getElementById('app');
+  app.style.removeProperty('--app-bg');
+  app.classList.remove('has-art');
+  document.getElementById('dtoTitle').textContent  = '';
+  document.getElementById('dtoArtist').textContent = '';
+}
+
+function startMeta() { fetchMeta(); metaTimer = setInterval(fetchMeta, META_INTERVAL); startMetaDrain(); }
+function stopMeta()  { if (metaTimer) { clearInterval(metaTimer); metaTimer = null; } stopMetaDrain(); }
+
+// ── Vote Bar (v1.5) ──────────────────────────────────────────────
+let _votedTrackKey = null;
+
+function voteBarShow() {
+  const up   = document.getElementById('btnThumbUp');
+  const down = document.getElementById('btnThumbDown');
+  if (!up || !down) return;
+  up.style.display   = 'flex';
+  down.style.display = 'flex';
+  up.classList.remove('voted');
+  down.classList.remove('voted');
+  const confirm = document.getElementById('voteConfirm');
+  if (confirm) confirm.textContent = '';
+  _votedTrackKey = null;
+}
+
+function voteBarHide() {
+  const up   = document.getElementById('btnThumbUp');
+  const down = document.getElementById('btnThumbDown');
+  if (up)   up.style.display   = 'none';
+  if (down) down.style.display = 'none';
+}
+
+function sendVote(vote) {
+  const title  = trackTitle.textContent.trim();
+  const artist = trackArtist.textContent.trim();
+  if (!title && !artist) return;
+
+  // One vote per track
+  const key = title + '|' + artist;
+  if (_votedTrackKey === key) return;
+  _votedTrackKey = key;
+
+  // Optimistic UI — highlight voted button
+  document.getElementById(vote === 'up' ? 'btnThumbUp' : 'btnThumbDown').classList.add('voted');
+
+  // Fire to Google Sheets
+  // Fire to Google Sheets via GET — avoids Apps Script CORS/redirect issues
+  const params = new URLSearchParams({
+    track:  title,
+    artist,
+    vote,
+    source: 'pwa'
+  });
+  fetch(`${VOTE_ENDPOINT}?${params.toString()}`, {
+    method: 'GET',
+    mode:   'no-cors'
+  }).catch(() => {}); // silent fail — don't alarm listener
+}
+
+document.getElementById('btnThumbUp')  ?.addEventListener('click', () => sendVote('up'));
+document.getElementById('btnThumbDown')?.addEventListener('click', () => sendVote('down'));
+
+// ── Now-playing crawl strip ──────────────────────────────────────
+function updateNowPlayingStrip(title, artist) {
+  const idle    = document.getElementById('npIdle');
+  const label   = document.getElementById('npLabel');
+  const dot1    = document.getElementById('npDot');
+  const npTitle = document.getElementById('npTitle');
+  const dot2    = document.getElementById('npDot2');
+  const npArtist= document.getElementById('npArtist');
+  const inner   = document.getElementById('nowplayingInner');
+  if (!idle) return;
+
+  if (!title) {
+    // Reset to idle
+    idle.style.display = ''; label.style.display = npTitle.style.display =
+    dot1.style.display = dot2.style.display = npArtist.style.display = 'none';
+    inner.classList.remove('crawl');
+    return;
+  }
+
+  idle.style.display    = 'none';
+  label.style.display   = '';
+  dot1.style.display    = '';
+  npTitle.style.display = '';
+  dot2.style.display    = '';
+  npArtist.style.display = '';
+  npTitle.textContent   = title;
+  npArtist.textContent  = artist;
+
+  // Decide crawl vs static after paint
+  requestAnimationFrame(() => {
+    const stripW = document.getElementById('nowplayingStrip').clientWidth;
+    const textW  = inner.scrollWidth;
+    inner.classList.remove('crawl');
+    if (textW > stripW - 20) {
+      // Crawl speed: ~80px/s
+      const dur = Math.max(10, Math.round(textW / 80));
+      inner.style.setProperty('--crawl-dur', `${dur}s`);
+      inner.classList.add('crawl');
+    }
+  });
+}
+
+function resetNowPlayingStrip() {
+  updateNowPlayingStrip('', '');
+}
+const shareTargets = [artDisc, document.querySelector('.tb-icon')];
+let pressTimer = null;
+
+function triggerShare() {
+  if (!navigator.share) {
+    navigator.clipboard?.writeText('https://www.yachtrockinradio.com').then(() => {
+      showToast('Link copied to clipboard!');
+    });
+    return;
+  }
+  navigator.share({
+    title: "Yacht Rockin' Radio",
+    text: "Smooth sailing music all day — WYRR-DB",
+    url: 'https://www.yachtrockinradio.com'
+  }).catch(() => {});
+}
+
+function shareApp() {
+  closeMenu();
+  const shareData = {
+    title: "Yacht Rockin' Radio",
+    text: "Check out Yacht Rockin' Radio — smooth sailing music, 24/7. WYRR-DB",
+    url: 'https://www.yachtrockinradio.com'
+  };
+  if (navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    // Desktop fallback — copy to clipboard
+    const text = `${shareData.text}\n${shareData.url}`;
+    navigator.clipboard?.writeText(text).then(() => showToast('Link copied! Share it with friends.'))
+      .catch(() => {
+        // Last resort — prompt
+        prompt("Copy this link to share:", shareData.url);
+      });
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    background:rgba(200,168,75,0.92); color:#06101e;
+    padding:10px 20px; border-radius:20px; font-size:13px;
+    font-family:Arial,sans-serif; font-weight:600;
+    z-index:9999; pointer-events:none;
+    animation: fadeUp 0.3s ease forwards;
+  `;
+  document.head.insertAdjacentHTML('beforeend', `<style>@keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>`);
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+shareTargets.forEach(el => {
+  if (!el) return;
+  el.addEventListener('pointerdown', () => {
+    pressTimer = setTimeout(() => {
+      triggerShare();
+      el.style.transition = 'box-shadow 0.15s';
+      el.style.boxShadow = '0 0 0 4px rgba(200,168,75,0.6)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 400);
+    }, 600);
+  });
+  el.addEventListener('pointerup',    () => clearTimeout(pressTimer));
+  el.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+  el.addEventListener('contextmenu',  e  => { e.preventDefault(); triggerShare(); });
+});
+
+// ══════════════════════════════════════════════════════════════
+// SKIN SYSTEM  —  Yacht / Superyacht / Megayacht / Gigayacht
+// data-skin is set on <body> so CSS descendant selectors cascade
+// correctly to all child elements.
+// ══════════════════════════════════════════════════════════════
+const SKIN_PREVIEW_SECS = 60;
+let activeSkinId  = '';
+let previewSkinId = '';
+let previewCd     = 0;
+let previewIv     = null;
+const skinBar     = document.getElementById('skinPreviewBar');
+
+function _applySkin(id) {
+  document.body.removeAttribute('data-skin');
+  if (id) document.body.setAttribute('data-skin', id);
+  try { localStorage.setItem('yrr-skin', id || ''); } catch(_) {}
+  // show/hide GT-only elements immediately
+  const isGT = id === 'gameTime';
+  const gtEls = ['gtStatusBar','gtPanel','gtFooterRow','gtMsg'];
+  gtEls.forEach(elId => {
+    const el = document.getElementById(elId);
+    if (el) el.style.display = isGT ? (elId === 'gtPanel' ? 'flex' : elId === 'gtStatusBar' ? 'flex' : elId === 'gtFooterRow' ? 'flex' : 'none') : 'none';
+  });
+}
+
+function skinActivate(id) {
+  _clearPreview();
+  activeSkinId = id;
+  _applySkin(id);
+  _updateDrawerBadges();
+  id === 'gameTime' ? gtInit() : gtTeardown();
+  closeMenu();
+}
+
+function skinPreview(id) {
+  if (activeSkinId === id) { skinActivate(''); return; }
+  _clearPreview();
+  previewSkinId = id;
+  _applySkin(id);
+  _updateDrawerBadges();
+  id === 'gameTime' ? gtInit() : gtTeardown();
+  previewCd = SKIN_PREVIEW_SECS;
+  _showBar();
+  previewIv = setInterval(() => {
+    previewCd--;
+    if (previewCd <= 0) {
+      _clearPreview();
+      _applySkin(activeSkinId);
+      _updateDrawerBadges();
+      if (activeSkinId !== 'gameTime') gtTeardown();
+    } else { _showBar(); }
+  }, 1000);
+  closeMenu();
+}
+
+function _showBar() {
+  skinBar.textContent = 'Game Time preview — ' + previewCd + 's · tap to keep';
+  skinBar.classList.add('show');
+  skinBar.onclick = () => skinActivate(previewSkinId);
+}
+
+function _clearPreview() {
+  if (previewIv) { clearInterval(previewIv); previewIv = null; }
+  skinBar.classList.remove('show');
+  skinBar.onclick = null;
+  previewSkinId = '';
+}
+
+function _updateDrawerBadges() {
+  const id = activeSkinId;
+  document.querySelectorAll('.skin-row').forEach(r => r.classList.remove('skin-active'));
+  const rowId = id === '' ? 'skinRowDefault' : 'skinRow' + id.charAt(0).toUpperCase() + id.slice(1);
+  const row = document.getElementById(rowId);
+  if (row) row.classList.add('skin-active');
+  const db = document.getElementById('skinBadgeDefault');
+  const gb = document.getElementById('skinBadgeGameTime');
+  if (db) { db.textContent = id === '' ? 'Active' : 'Default'; db.className = 'skin-badge ' + (id === '' ? 'skin-badge-active' : 'skin-badge-soon'); }
+  if (gb) { gb.textContent = id === 'gameTime' ? 'Active' : 'Preview'; gb.className = 'skin-badge ' + (id === 'gameTime' ? 'skin-badge-active' : 'skin-badge-preview'); }
+}
+
+// Drawer close button
+document.getElementById('drawerCloseBtn').addEventListener('click', closeMenu);
+
+// Skin row click handlers
+document.getElementById('skinRowDefault').addEventListener('click', () => skinActivate(''));
+document.getElementById('skinRowGameTime').addEventListener('click', () => skinPreview('gameTime'));
+
+// Restore saved skin on load
+(function () {
+  try {
+    const s = localStorage.getItem('yrr-skin');
+    if (s) { activeSkinId = s; _applySkin(s); _updateDrawerBadges(); if (s === 'gameTime') gtInit(); }
+  } catch(_) {}
+})();
+
+// ══════════════════════════════════════════════════════════════
+// GAME TIME  —  Mattel Football clone
+// Megayacht tier · stream-coupled · sponsor-ready
+//
+// Controls (bound in JS — no inline onclick):
+//   ST  = start new game (also auto-starts stream if idle)
+//   K   = kickoff / restart
+//   SC  = announce score + field position
+//   ▶   = HIKE — advance player right (+2 yds)
+//   ▲▼  = move player up / down a lane
+//
+// Tackle detection: triple-checkpoint
+//   1. Before player moves (defender already on player cell)
+//   2. After player moves to new cell
+//   3. After defenders advance
+//
+// Stream coupling:
+//   • ST/K auto-start stream if not playing
+//   • audio 'waiting' → gtPaused = true  (game freezes, msg shown)
+//   • audio 'playing' → gtPaused = false (game resumes silently)
+//   • audio 'error'   → gtPaused = true  (stream lost msg)
+//
+// Sponsor slot: set document.getElementById('gtSponsor')
+//   .textContent = 'Presented by Your Brand' any time.
+// ══════════════════════════════════════════════════════════════
+const GT_ROWS = 9, GT_COLS = 16;
+let gtCells  = [];
+let gtPRow   = 4, gtPCol = 0;
+let gtDefs   = [];
+let gtActive = false, gtPaused = false, gtAnimating = false;
+let gtDown   = 1;
+let gtScore  = 0,  gtSecs  = 120;
+let gtDefSpeed = 900;   // ms per defender tick — decreases each touchdown (floor 400)
+let gtClockIv = null, gtDefIv = null;
+
+// Element refs — all grabbed once after DOM ready
+const gtLedInnerEl  = document.getElementById('gtLedInner');
+const gtMsgEl       = document.getElementById('gtMsg');
+const gtStatusBarEl = document.getElementById('gtStatusBar');
+const gtResultEl    = document.getElementById('gtResultMsg');
+const gtOvalEl      = document.getElementById('gtFieldOval');
+
+// Status bar has two sets of IDs (header inside oval + bar below)
+// We update both so whichever is visible shows correct data.
+function gtUpdateHUD() {
+  const fldVal = gtActive ? Math.round((gtPCol / GT_COLS) * 100) + 'yd' : '--';
+  const m = Math.floor(gtSecs / 60), s = gtSecs % 60;
+  const timeVal = m + ':' + String(s).padStart(2, '0');
+
+  [['gtDown','gtDownB'], ['gtField','gtFieldB'],
+   ['gtScore','gtScoreB'], ['gtTime','gtTimeB']].forEach(([a, b]) => {
+    const va = document.getElementById(a);
+    const vb = document.getElementById(b);
+    let val = '';
+    if (a === 'gtDown')  val = String(gtDown);
+    if (a === 'gtField') val = fldVal;
+    if (a === 'gtScore') val = String(gtScore);
+    if (a === 'gtTime')  val = timeVal;
+    if (va) va.textContent = val;
+    if (vb) vb.textContent = val;
+  });
+}
+
+function gtShowMsg(txt, persist) {
+  if (!gtMsgEl) return;
+  gtMsgEl.textContent = txt;
+  gtMsgEl.style.display = 'block';
+  gtMsgEl.classList.add('show');
+  if (!persist) setTimeout(() => { gtMsgEl.classList.remove('show'); gtMsgEl.style.display = 'none'; }, 1600);
+}
+
+// Animated result gate — blocks all input for 1800ms, flashes field, shows overlay message
+function gtShowResult(type, cb) {
+  gtAnimating = true;
+  const msgs = { td: 'TOUCHDOWN!', to: 'TURNOVER' };
+  const cls  = 'gt-result-show ' + (type === 'td' ? 'gt-result-td' : 'gt-result-to');
+  if (gtResultEl) { gtResultEl.textContent = msgs[type] || ''; gtResultEl.className = cls; }
+  if (gtOvalEl)   { gtOvalEl.classList.add('gt-flashing'); }
+  setTimeout(() => {
+    if (gtOvalEl)   gtOvalEl.classList.remove('gt-flashing');
+    if (gtResultEl) gtResultEl.className = '';
+    gtAnimating = false;
+    cb();
+  }, 1800);
+}
+
+function gtBuildField() {
+  if (!gtLedInnerEl) return;
+  gtLedInnerEl.innerHTML = '';
+  gtCells = [];
+  for (let r = 0; r < GT_ROWS; r++) {
+    gtCells[r] = [];
+    for (let c = 0; c < GT_COLS; c++) {
+      const d = document.createElement('div');
+      d.className = 'gt-led';
+      gtLedInnerEl.appendChild(d);
+      gtCells[r][c] = d;
+    }
+  }
+}
+
+function gtRender() {
+  if (!gtCells.length) return;
+  for (let r = 0; r < GT_ROWS; r++)
+    for (let c = 0; c < GT_COLS; c++)
+      gtCells[r][c].className = 'gt-led';
+  gtDefs.forEach(d => {
+    if (d.row >= 0 && d.row < GT_ROWS && d.col >= 0 && d.col < GT_COLS)
+      gtCells[d.row][d.col].className = 'gt-led gt-def';
+  });
+  if (gtPRow >= 0 && gtPRow < GT_ROWS && gtPCol >= 0 && gtPCol < GT_COLS)
+    gtCells[gtPRow][gtPCol].className = 'gt-led gt-player';
+}
+
+function gtSpawnPlay() {
+  gtPRow = 4; gtPCol = 0;
+  gtDefs = [];
+  // Three defenders distributed across the field — early, mid, late thirds
+  [4, 8, 12].forEach(startCol => {
+    gtDefs.push({
+      row:      Math.floor(Math.random() * GT_ROWS),
+      col:      startCol + Math.floor(Math.random() * 2),
+      tick:     0,
+      interval: 2 + Math.floor(Math.random() * 3)
+    });
+  });
+  gtRender();
+}
+
+function gtAdvDefs() {
+  gtDefs.forEach(d => {
+    d.tick++;
+    if (d.tick >= d.interval) {
+      d.tick = 0;
+      const dr = gtPRow - d.row;
+      if (Math.random() < 0.42 && dr !== 0) {
+        d.row += dr > 0 ? 1 : -1;
+      } else {
+        d.col = Math.max(0, d.col - 1);
+      }
+      d.row = Math.max(0, Math.min(GT_ROWS - 1, d.row));
+      d.interval = 2 + Math.floor(Math.random() * 3);
+    }
+  });
+}
+
+// Triple-checkpoint tackle detection
+function gtCheckTackle() {
+  return gtDefs.some(d => d.row === gtPRow && d.col === gtPCol);
+}
+
+function gtFlash(cb) {
+  let f = 0;
+  const iv = setInterval(() => {
+    if (gtCells[gtPRow] && gtCells[gtPRow][gtPCol])
+      gtCells[gtPRow][gtPCol].className = f % 2 === 0 ? 'gt-led gt-flash' : 'gt-led';
+    if (++f > 7) { clearInterval(iv); if (cb) cb(); }
+  }, 100);
+}
+
+function gtDoTackle() {
+  if (gtAnimating) return;
+  gtActive = false;
+  gtFlash(() => {
+    gtDown++;
+    if (gtDown > 4) {
+      gtShowResult('to', () => {
+        gtActive = false;
+        gtShowMsg('ST to play again', true);
+      });
+      return;
+    }
+    gtActive = true;
+    gtSpawnPlay();
+    gtUpdateHUD();
+    gtShowMsg('Tackle! Down ' + gtDown, false);
+  });
+}
+
+function gtTouchdown() {
+  if (gtAnimating) return;
+  gtActive = false;
+  gtScore += 7;
+  gtRender();
+  gtUpdateHUD();
+  gtShowResult('td', () => {
+    gtStartNewDrive();
+  });
+}
+
+// New drive after a score — keeps clock and score, speeds up defenders
+function gtStartNewDrive() {
+  gtDown      = 1;
+  gtDefSpeed  = Math.max(400, gtDefSpeed - 75);   // faster each TD
+  clearInterval(gtDefIv);
+  gtSpawnPlay();
+  gtUpdateHUD();
+  gtActive = true;
+  gtShowMsg('Hike!', false);
+  gtDefIv = setInterval(() => {
+    if (!gtActive || gtPaused || gtAnimating) return;
+    gtAdvDefs();
+    if (gtCheckTackle()) { gtDoTackle(); return; }
+    gtRender();
+  }, gtDefSpeed);
+}
+
+function gtGameOver() {
+  gtActive = false;
+  gtClearTimers();
+  gtShowMsg('Final: ' + gtScore + ' pts  — ST to play', true);
+}
+
+function gtClearTimers() {
+  if (gtClockIv) { clearInterval(gtClockIv); gtClockIv = null; }
+  if (gtDefIv)   { clearInterval(gtDefIv);   gtDefIv   = null; }
+}
+
+function gtInit() {
+  gtBuildField();
+  gtRender();
+  gtUpdateHUD();
+  gtShowMsg('Stream on — ST to start', true);
+}
+
+function gtTeardown() {
+  gtActive = false; gtPaused = false; gtAnimating = false;
+  gtClearTimers();
+  if (gtMsgEl)    { gtMsgEl.style.display = 'none'; gtMsgEl.classList.remove('show'); }
+  if (gtResultEl) { gtResultEl.className = ''; }
+  if (gtOvalEl)   { gtOvalEl.classList.remove('gt-flashing'); }
+}
+
+function gtStartGame() {
+  // Require stream — auto-start if idle
+  if (!isPlaying && !isLoading) {
+    startStream();
+    gtShowMsg('Tuning in\u2026 ST to start', true);
+    const onPlaying = () => {
+      audio.removeEventListener('playing', onPlaying);
+      gtShowMsg('ST to start', true);
+    };
+    audio.addEventListener('playing', onPlaying);
+    return;
+  }
+  gtActive = true; gtPaused = false; gtAnimating = false;
+  gtDown = 1; gtScore = 0; gtSecs = 120; gtDefSpeed = 900;
+  gtClearTimers();
+  gtSpawnPlay();
+  gtUpdateHUD();
+  gtShowMsg('Hike!', false);
+
+  gtClockIv = setInterval(() => {
+    if (!gtActive || gtPaused || gtAnimating) return;
+    gtSecs--;
+    gtUpdateHUD();
+    if (gtSecs <= 0) gtGameOver();
+  }, 1000);
+
+  gtDefIv = setInterval(() => {
+    if (!gtActive || gtPaused || gtAnimating) return;
+    gtAdvDefs();
+    if (gtCheckTackle()) { gtDoTackle(); return; }
+    gtRender();
+  }, gtDefSpeed);
+}
+
+// ── Game button actions ───────────────────────────────────────
+function gtActionHike() {
+  if (!gtActive || gtPaused || gtAnimating) {
+    if (!gtActive && !gtAnimating) gtShowMsg('ST to start', false);
+    return;
+  }
+  // Checkpoint 1: tackle at current position?
+  if (gtCheckTackle()) { gtDoTackle(); return; }
+  // Advance player one column
+  gtPCol++;
+  // Checkpoint 2: tackle at new position?
+  if (gtCheckTackle()) { gtDoTackle(); return; }
+  // Advance defenders
+  gtAdvDefs();
+  gtUpdateHUD();
+  // Checkpoint 3: tackle after defender move?
+  if (gtCheckTackle()) { gtDoTackle(); return; }
+  // Reached the end zone — full field traversal = touchdown
+  if (gtPCol >= GT_COLS) {
+    gtTouchdown();
+    return;
+  }
+  gtRender();
+}
+
+function gtActionMove(dir) {
+  if (!gtActive || gtPaused || gtAnimating) return;
+  const newRow = Math.max(0, Math.min(GT_ROWS - 1, gtPRow + dir));
+  if (newRow === gtPRow) return;
+  gtPRow = newRow;
+  if (gtCheckTackle()) { gtDoTackle(); return; }
+  gtAdvDefs();
+  if (gtCheckTackle()) { gtDoTackle(); return; }
+  gtRender();
+}
+
+function gtActionSC() {
+  if (gtAnimating) return;
+  const yd = gtActive ? Math.round((gtPCol / GT_COLS) * 100) : 0;
+  gtShowMsg('Score: ' + gtScore + ' · ' + yd + 'yd line · Dn ' + gtDown, false);
+}
+
+// ── Bind all game buttons via addEventListener (no inline onclick) ──
+document.getElementById('gtST').addEventListener('click', gtStartGame);
+document.getElementById('gtK').addEventListener('click', () => {
+  gtClearTimers();
+  gtActive = false; gtPaused = false; gtAnimating = false;
+  if (gtResultEl) gtResultEl.className = '';
+  if (gtOvalEl)   gtOvalEl.classList.remove('gt-flashing');
+  gtDown = 1; gtScore = 0; gtSecs = 120; gtDefSpeed = 900;
+  gtStartGame();
+});
+document.getElementById('gtSC').addEventListener('click', gtActionSC);
+document.getElementById('gtHikeBtn').addEventListener('click', gtActionHike);
+document.getElementById('gtUp').addEventListener('click', () => gtActionMove(-1));
+document.getElementById('gtDn').addEventListener('click', () => gtActionMove(1));
+
+// ── Stream coupling ───────────────────────────────────────────
+audio.addEventListener('waiting', () => {
+  if (gtActive) { gtPaused = true; gtShowMsg('Buffering\u2026', true); }
+});
+audio.addEventListener('playing', () => {
+  if (gtActive && gtPaused && !gtAnimating) {
+    gtPaused = false;
+    if (gtMsgEl) { gtMsgEl.style.display = 'none'; gtMsgEl.classList.remove('show'); }
+  }
+});
+audio.addEventListener('error', () => {
+  if (gtActive) { gtPaused = true; gtShowMsg('Stream lost', true); }
+});
+</script>
+
+</body>
+</html>
