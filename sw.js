@@ -1,9 +1,9 @@
-// Yacht Rock Radio PWA — Service Worker v1.5.2
+﻿// Yacht Rock Radio PWA — Service Worker v1.5.2 110526
 // v1.5.2: Stream/media requests now BYPASS the service worker entirely.
 // Previously respondWith(fetch()) proxied the endless Live365 stream through
 // the SW; when the browser froze/killed the SW (screen off, app backgrounded)
 // the stream died after the buffer drained.
-const CACHE_NAME = 'yacht-rock-v1-5-2';
+const CACHE_NAME = 'yacht-rock-v1-5-3';
 const SHELL_FILES = [
   '/',
   '/index.html',
@@ -12,6 +12,7 @@ const SHELL_FILES = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
 ];
+
 
 // Domains the SW must never touch — browser talks to them directly
 const NETWORK_ONLY = [
@@ -22,6 +23,7 @@ const NETWORK_ONLY = [
   'coverartarchive.org',
 ];
 
+
 // Install: cache app shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -29,6 +31,7 @@ self.addEventListener('install', (event) => {
   );
   self.skipWaiting();
 });
+
 
 // Activate: clean old caches
 self.addEventListener('activate', (event) => {
@@ -40,10 +43,12 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+
 // Fetch handler
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
+
 
   // Hands off: non-GET, audio/video, range requests, and external live domains.
   // NOT calling respondWith() lets the browser fetch directly, so the stream
@@ -58,10 +63,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+
   // Only manage our own origin — leave every other third-party request alone
   if (url.origin !== self.location.origin) {
     return;
   }
+
 
   // Local shell files — cache-first, fall back to network
   event.respondWith(

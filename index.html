@@ -1690,7 +1690,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5';
+const APP_VERSION   = 'v1.5.2';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -1756,6 +1756,28 @@ function runSponsorSplash(onDone) {
 
 // ── Version label ────────────────────────────────────────────────
 document.getElementById('appVersionLabel').textContent = APP_VERSION;
+// ── Playback log (diagnostics) — tap the version label in the drawer to view ──
+function plog(msg) {
+  try {
+    const d = new Date(), t = d.toTimeString().slice(0, 8);
+    const log = JSON.parse(localStorage.getItem('yrrPlayLog') || '[]');
+    log.push(t + '  ' + msg + (document.hidden ? '  [hidden]' : ''));
+    localStorage.setItem('yrrPlayLog', JSON.stringify(log.slice(-60)));
+  } catch (e) {}
+}
+(function () {
+  const lbl = document.getElementById('appVersionLabel');
+  if (!lbl) return;
+  lbl.style.cursor = 'pointer';
+  lbl.addEventListener('click', () => {
+    let log = [];
+    try { log = JSON.parse(localStorage.getItem('yrrPlayLog') || '[]'); } catch (e) {}
+    const text = APP_VERSION + ' playback log (newest last):\n\n' + (log.length ? log.slice(-30).join('\n') : '(empty)');
+    if (confirm(text + '\n\nOK = copy log to clipboard · Cancel = close')) {
+      try { navigator.clipboard.writeText(log.join('\n')); } catch (e) {}
+    }
+  });
+})();
 
 // ── Ring Meter Visualizer — simulation-based, no CORS needed ─
 // Audio plays clean. Rings pulse OUTWARD from disc edge using
@@ -1866,6 +1888,12 @@ function drawViz(ts = 0) {
 window.addEventListener('resize', () => { if (vizCanvas.classList.contains('active')) resizeVizCanvas(); });
 
 const audio       = document.getElementById('radioAudio');
+['play','playing','pause','waiting','stalled','ended','abort','emptied'].forEach(ev =>
+  audio.addEventListener(ev, () => { if (typeof plog === 'function') plog('audio ' + ev); }));
+audio.addEventListener('error', () => { if (typeof plog === 'function') plog('audio error code=' + (audio.error && audio.error.code)); });
+document.addEventListener('visibilitychange', () => { if (typeof plog === 'function') plog('visibility ' + document.visibilityState); });
+window.addEventListener('online',  () => { if (typeof plog === 'function') plog('network online'); });
+window.addEventListener('offline', () => { if (typeof plog === 'function') plog('network offline'); });
 const playBtn     = document.getElementById('playBtn');
 const iconPlay    = document.getElementById('iconPlay');
 const iconPause   = document.getElementById('iconPause');
@@ -1995,6 +2023,7 @@ function scheduleReconnect(reason) {
   }
   const delay = Math.min(30000, 2000 * Math.pow(2, reconnectTries)); // 2,4,8,16,30…
   reconnectTries++;
+  if (typeof plog === 'function') plog('reconnect #' + reconnectTries + ' in ' + delay + 'ms (' + reason + ')');
   setStatus('Reconnecting\u2026', false);
   console.warn('YRR reconnect #' + reconnectTries + ' in ' + delay + 'ms (' + reason + ')');
   reconnectTimer = setTimeout(() => { reconnectTimer = null; if (wantPlay) startStream(); }, delay);
