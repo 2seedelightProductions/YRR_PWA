@@ -1,9 +1,9 @@
-﻿// Yacht Rock Radio PWA — Service Worker v1.5.2 110526
+// Yacht Rock Radio PWA — Service Worker v1.5.3 111126 (vote category + listener ID)
 // v1.5.2: Stream/media requests now BYPASS the service worker entirely.
 // Previously respondWith(fetch()) proxied the endless Live365 stream through
 // the SW; when the browser froze/killed the SW (screen off, app backgrounded)
 // the stream died after the buffer drained.
-const CACHE_NAME = 'yacht-rock-v1-5-3';
+const CACHE_NAME = 'yacht-rock-v1-5-4';
 const SHELL_FILES = [
   '/',
   '/index.html',

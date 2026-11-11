@@ -1690,7 +1690,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.2';
+const APP_VERSION   = 'v1.5.3';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2741,11 +2741,41 @@ function voteBarShow() {
   if (!up || !down) return;
   up.style.display   = 'flex';
   down.style.display = 'flex';
-  up.classList.remove('voted');
-  down.classList.remove('voted');
-  const confirm = document.getElementById('voteConfirm');
-  if (confirm) confirm.textContent = '';
-  _votedTrackKey = null;
+  // Only reset vote state when the track actually changes — re-renders of the
+  // same track (resume, metadata refresh) used to clear it and allow double votes.
+  const curKey = _currentTrackKey();
+  if (curKey !== _votedTrackKey) {
+    up.classList.remove('voted');
+    down.classList.remove('voted');
+    const confirm = document.getElementById('voteConfirm');
+    if (confirm) confirm.textContent = '';
+  }
+}
+
+function _currentTrackKey() {
+  return (trackTitle.textContent.trim() + '|' + trackArtist.textContent.trim()).toLowerCase();
+}
+
+// Anonymous per-device listener ID (no personal info) — created once, kept in localStorage
+function getListenerId() {
+  try {
+    let id = localStorage.getItem('yrr-lid');
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID()
+           : 'l-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+      localStorage.setItem('yrr-lid', id);
+    }
+    return id;
+  } catch (_) { return ''; }
+}
+
+// Category = library.json folder field [2] (AM Gold, DeepDive, Retro, SmoothFM, YachtRock, YarAndB…)
+function lookupCategory(title, artist) {
+  if (!library.length) return '';
+  const t = title.toLowerCase(), a = artist.toLowerCase();
+  const hit = library.find(r => String(r[1]).toLowerCase() === t && String(r[0]).toLowerCase() === a)
+           || library.find(r => String(r[1]).toLowerCase() === t);
+  return hit ? String(hit[2] || '') : '';
 }
 
 function voteBarHide() {
@@ -2755,26 +2785,36 @@ function voteBarHide() {
   if (down) down.style.display = 'none';
 }
 
-function sendVote(vote) {
+async function sendVote(vote) {
   const title  = trackTitle.textContent.trim();
   const artist = trackArtist.textContent.trim();
   if (!title && !artist) return;
 
-  // One vote per track
-  const key = title + '|' + artist;
+  // One vote per track (in-memory)…
+  const key = _currentTrackKey();
   if (_votedTrackKey === key) return;
+  // …plus a 60s guard that survives re-renders and app restarts (double-tap protection)
+  try {
+    const last = JSON.parse(localStorage.getItem('yrr-lastVote') || 'null');
+    if (last && last.key === key && Date.now() - last.t < 60000) return;
+    localStorage.setItem('yrr-lastVote', JSON.stringify({ key, t: Date.now() }));
+  } catch (_) {}
   _votedTrackKey = key;
 
   // Optimistic UI — highlight voted button
   document.getElementById(vote === 'up' ? 'btnThumbUp' : 'btnThumbDown').classList.add('voted');
 
-  // Fire to Google Sheets
+  await loadLibrary(); // no-op if already loaded; silent on failure
+
   // Fire to Google Sheets via GET — avoids Apps Script CORS/redirect issues
   const params = new URLSearchParams({
-    track:  title,
+    track:    title,
     artist,
+    category: lookupCategory(title, artist),
     vote,
-    source: 'pwa'
+    source:   'pwa',
+    lid:      getListenerId(),
+    ver:      APP_VERSION
   });
   fetch(`${VOTE_ENDPOINT}?${params.toString()}`, {
     method: 'GET',
