@@ -2642,14 +2642,89 @@ function fmtAgo(date) {
 }
 
 function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // Refresh "ago" timestamps every minute
 setInterval(() => { if (recentTracks.length) renderRecents(); }, 60000);
 
 // ── renderTrackUI — applies one track to all display surfaces ──────────
+// ── Ad breaks / sweepers / promos: show station promos, not the raw log name ──
+// NextKast sends breaks as e.g. "Live365 - ADBREAK_120000 3". Those (and
+// sweepers, BRBs, IDs, NostalgiAds) get station promos in the crawl, no Amazon
+// button, no thumbs, no recents.
+const NON_MUSIC_RE = /ADBREAK_|^live365\b|^VoiceGal\b|^LegalID\b|^breakNote\b|^BRB\b|Network Break|Hoober Sweep|^YRP Promo|^4550 - Generic|^HB_\d|^YCL_|^SummerJam - |NostalgiAds|^VoiceTrack/i;
+const NON_MUSIC_CATS = new Set(['AdBreak120','Commercials','Network','BRB','PROMO','LegalID','YRRSweepers','YCL Sweepers','HB Sweeps','SummerJams','breakNote','Talk Break','FinalMessage']);
+function isNonMusic(title, artist) {
+  if (NON_MUSIC_RE.test(`${artist} - ${title}`) || NON_MUSIC_RE.test(title)) return true;
+  return NON_MUSIC_CATS.has(lookupCategory(title || '', artist || ''));
+}
+
+// Promos live on the prep site so they can change without an app update.
+// Each: { "text": "...", "start": "2026-11-12T00:00:00-05:00", "end": "..." } (dates optional)
+const PROMO_URL = 'https://prep.yachtrockinradio.com/crawl-promos.json';
+let _promos = [
+  'Call or text us anytime · 702-YR-YACHT',
+  'Join the Yacht Club Lunch Bunch · yachtclublunch.com',
+  "Your 45's Are 50 · Saturdays 8–10a ET",
+  'Shows Near You · see who\'s on tour · tap ☰',
+  'Love the app? Share it with a friend · tap ☰',
+];
+let _promoIdx = 0, _promoIv = null, _inBreak = false;
+async function loadPromos() {
+  try {
+    const r = await fetch(PROMO_URL, { cache: 'no-store' });
+    const d = await r.json();
+    const now = new Date();
+    const live = (d.promos || []).filter(p => p && p.text &&
+      (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)));
+    if (live.length) _promos = live.map(p => p.text);
+  } catch (_) { /* keep defaults */ }
+}
+loadPromos();
+setInterval(loadPromos, 15 * 60 * 1000);
+
+function showPromo() {
+  const idle  = document.getElementById('npIdle');
+  const inner = document.getElementById('nowplayingInner');
+  if (!idle || !_promos.length) return;
+  ['npLabel','npDot','npTitle','npDot2','npArtist','npTour'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  idle.textContent = _promos[_promoIdx++ % _promos.length];
+  idle.style.display = '';
+  inner.classList.remove('crawl');
+  layoutNowPlayingStrip();
+}
+function startPromos() {
+  if (_promoIv) return;
+  showPromo();
+  _promoIv = setInterval(showPromo, 20000);
+}
+function stopPromos() {
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  const idle = document.getElementById('npIdle');
+  if (idle) idle.textContent = "The Best Yacht, Rock and Retro 24/7!";
+}
+
+function renderBreakUI() {
+  const amzBtn = document.getElementById('amzBtn');
+  if (amzBtn) amzBtn.style.display = 'none';
+  voteBarHide();
+  _tourFor = ''; setTourLine(null);
+  if (_inBreak) return;
+  _inBreak = true;
+  trackTitle.textContent  = "Yacht Rockin' Radio";
+  trackArtist.textContent = 'Back in a moment…';
+  document.getElementById('dtoTitle').textContent  = trackTitle.textContent;
+  document.getElementById('dtoArtist').textContent = trackArtist.textContent;
+  startPromos();
+}
+
 function renderTrackUI(title, artist) {
+  if (isNonMusic(title, artist)) { renderBreakUI(); return; }
+  if (_inBreak) { _inBreak = false; stopPromos(); }
   trackTitle.textContent  = title;
   trackArtist.textContent = artist;
   document.getElementById('dtoTitle').textContent  = title;
@@ -2903,7 +2978,6 @@ async function refreshTourLine(artist) {
 // ── Shows Near You sheet ──
 const showsModal = document.getElementById('shows-modal');
 let _showsLoaded = false;
-function escHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 async function openShows() {
   closeMenu();
   showsModal.classList.add('open');
