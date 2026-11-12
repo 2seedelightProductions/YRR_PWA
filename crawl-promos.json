@@ -1,5 +1,5 @@
 {
- "_how": "Messages the YRR app shows in the crawl during ad breaks, sweepers and promos. Rotates every 20 seconds. start/end are optional (Eastern time shown with -05:00). Expired lines are ignored, so old notices can stay until cleanup. Lines with \"artist\" also show in the crawl while that artist is playing that day. Birthdays come from the YRR Google Calendar (🎂 living, 🕯️ remembered).",
+ "_how": "Messages the YRR app shows in its crawl. Rotates every 20 seconds when nothing song-specific is showing. Optional filters: start/end (ISO time), days (0=Sun…6=Sat, Eastern), hours [from,to) in Eastern 24h. \"artist\" lines (birthdays) show while that artist plays that day. \"kind\":\"y4550\" lines need artist+title and show while that song plays.",
  "promos": [
   {
    "text": "Ensign Williams is off today for a job interview · wish him luck!",
@@ -182,6 +182,267 @@
    "kind": "holiday",
    "start": "2027-01-01T00:00:00-05:00",
    "end": "2027-01-01T23:59:00-05:00"
+  },
+  {
+   "text": "Coming up at noon ET · Yacht Club Lunch with Capt. Hugh",
+   "days": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "hours": [
+    11,
+    12
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "On now · Yacht Club Lunch with Capt. Hugh · join the Lunch Bunch at yachtclublunch.com",
+   "days": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "hours": [
+    12,
+    13
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "It's New Music Monday · found treasures from new artists",
+   "days": [
+    1
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "It's Flush the Format Friday · found treasures you won't hear anywhere else",
+   "days": [
+    5
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "Coming up at 8a ET · Your 45's Are 50 · the countdown from 50 years ago this week",
+   "days": [
+    6
+   ],
+   "hours": [
+    6,
+    8
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "On now · Your 45's Are 50 · the countdown from 50 years ago this week",
+   "days": [
+    6
+   ],
+   "hours": [
+    8,
+    10
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "On now · Yacht Club Brunch · Sundays till 2p ET",
+   "days": [
+    0
+   ],
+   "hours": [
+    10,
+    14
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "📻 #1 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Steve Miller Band",
+   "title": "Rock'n Me",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #3 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Gordon Lightfoot",
+   "title": "The Wreck Of The Edmund Fitzgerald",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #4 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Chicago",
+   "title": "If You Leave Me Now",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #5 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Bee Gees",
+   "title": "Love So Right",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #6 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Captain & Tennille",
+   "title": "Muskrat Love",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #7 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Hall & Oates",
+   "title": "She's Gone",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #8 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Rod Stewart",
+   "title": "Tonight's The Night",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #9 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Heart",
+   "title": "Magic Man",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #10 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Commodores",
+   "title": "Just To Be Close To You",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #12 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Blue Oyster Cult",
+   "title": "Don't Fear The Reaper",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #15 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Spinners",
+   "title": "The Rubberband Man",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #24 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "England Dan & John Ford Coley",
+   "title": "Nights Are Forever Without You",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #25 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Linda Ronstadt",
+   "title": "That'll Be The Day",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #28 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Alice Cooper",
+   "title": "I Never Cry",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #29 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Barry Manilow",
+   "title": "This One's For You",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #33 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Boz Scaggs",
+   "title": "Lowdown",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 #34 on Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Leo Sayer",
+   "title": "You Make Me Feel Like Dancing",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 On Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Wild Cherry",
+   "title": "Play That Funky Music",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 On Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Walter Murphy",
+   "title": "A Fifth Of Beethoven",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 On Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Firefall",
+   "title": "You Are The Woman",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 On Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Boston",
+   "title": "More Than A Feeling",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 On Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "ABBA",
+   "title": "Fernando",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
+  },
+  {
+   "text": "📻 On Saturday's Your 45's Are 50 · the Nov. 6, 1976 chart",
+   "kind": "y4550",
+   "artist": "Kiss",
+   "title": "Beth",
+   "start": "2026-11-07T10:00:00-05:00",
+   "end": "2026-11-14T07:59:00-05:00"
   }
  ]
 }

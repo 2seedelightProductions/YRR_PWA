@@ -1034,6 +1034,19 @@
       border:1px solid rgba(255,255,255,0.12); border-radius:12px;
       color:var(--cream); font-size:15px; font-family:Arial,sans-serif; cursor:pointer;
     }
+    /* ── Swag giveaway ── */
+    #swag-modal { display:none; position:fixed; inset:0; z-index:9500; background:rgba(0,0,0,0.72); align-items:flex-end; justify-content:center; }
+    #swag-modal.open { display:flex; }
+    .swag-form { display:grid; gap:10px; padding:10px 22px 4px; font-family:Arial,sans-serif; }
+    .swag-form input:not([type=checkbox]), .swag-form select {
+      font-size:16px; padding:11px 12px; border-radius:10px; border:1px solid rgba(200,168,75,0.35);
+      background:rgba(255,255,255,0.06); color:var(--cream); }
+    .swag-form label { color:var(--cream); font-size:13px; display:flex; gap:8px; align-items:center; }
+    .swag-form a { color:var(--sky); }
+    .swag-go { margin-top:4px; padding:12px; border:0; border-radius:12px; background:var(--gold); color:#1a1408; font-weight:700; font-size:15px; }
+    .swag-fine { color:var(--muted); font-size:11px; text-align:center; }
+    .swag-msg { color:var(--cream); font-size:14px; padding:12px 22px 0; font-family:Arial,sans-serif; text-align:center; }
+
     /* ── Shows Near You ── */
     #shows-modal {
       display:none; position:fixed; inset:0; z-index:9500;
@@ -1586,6 +1599,29 @@
   <div class="ib-text"><strong>Add to Home Screen</strong><span>Install Yacht Rockin' Radio as an app</span></div>
   <button class="ib-btn" id="installBtn">Install</button>
   <button class="ib-close" id="bannerClose">&times;</button>
+</div>
+
+<!-- Swag Giveaway Sheet -->
+<div id="swag-modal">
+  <div class="contact-sheet">
+    <div class="cs-header">
+      <div class="cs-title">Win Yacht Rockin' Radio Swag</div>
+      <div class="cs-sub">Enter while this window is open</div>
+      <button class="cs-close" id="swagClose">&times;</button>
+    </div>
+    <form id="swagForm" class="swag-form" autocomplete="on">
+      <input name="name"  placeholder="Full name" required autocomplete="name">
+      <input name="email" type="email" placeholder="Email" required autocomplete="email">
+      <select name="state" required><option value="">State</option>
+        <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+      </select>
+      <label><input type="checkbox" name="age18"> I'm 18 or older and a US resident</label>
+      <label><input type="checkbox" name="rules"> I agree to the <a href="/swag-rules.html" target="_blank" rel="noopener">official rules</a></label>
+      <button type="submit" class="swag-go">Enter to win</button>
+      <div class="swag-fine">No purchase necessary. You must be listening when you enter.</div>
+    </form>
+    <div class="swag-msg" id="swagMsg"></div>
+  </div>
 </div>
 
 <!-- Shows Near You Sheet -->
@@ -2671,7 +2707,20 @@ let _promos = [
   'Shows Near You · see who\'s on tour · tap ☰',
   'Love the app? Share it with a friend · tap ☰',
 ];
-let _promoIdx = 0, _promoIv = null, _inBreak = false, _livePromos = [];
+let _promoIdx = 0, _promoIv = null, _inBreak = false, _livePromos = [], _allPromos = [];
+// Eastern day (0=Sun) and hour, for promos with "days"/"hours"
+function easternNow() {
+  const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', hourCycle: 'h23' });
+  const p = Object.fromEntries(f.formatToParts(new Date()).map(x => [x.type, x.value]));
+  return { day: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday), hour: +p.hour };
+}
+function activePromos() {
+  const now = new Date(), et = easternNow();
+  return _allPromos.filter(p => p && p.text &&
+    (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)) &&
+    (!p.days  || p.days.includes(et.day)) &&
+    (!p.hours || (et.hour >= p.hours[0] && et.hour < p.hours[1])));
+}
 async function loadPromos() {
   try {
     const r = await fetch(PROMO_URL, { cache: 'no-store' });
@@ -2679,8 +2728,10 @@ async function loadPromos() {
     const now = new Date();
     const live = (d.promos || []).filter(p => p && p.text &&
       (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)));
+    _allPromos = d.promos || [];
     _livePromos = live;
-    if (live.length) _promos = live.map(p => p.text);
+    const rot = activePromos().filter(p => p.kind !== 'y4550');
+    if (rot.length) _promos = rot.map(p => p.text);
   } catch (_) { /* keep defaults */ }
 }
 loadPromos();
@@ -2693,7 +2744,9 @@ function showPromo() {
   ['npLabel','npDot','npTitle','npDot2','npArtist','npTour'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
-  idle.textContent = _promos[_promoIdx++ % _promos.length];
+  const rot = _allPromos.length ? activePromos().filter(p => p.kind !== 'y4550').map(p => p.text) : _promos;
+  const list = rot.length ? rot : _promos;
+  idle.textContent = list[_promoIdx++ % list.length];
   idle.style.display = '';
   inner.classList.remove('crawl');
   layoutNowPlayingStrip();
@@ -2972,15 +3025,37 @@ function _normName(s) { return String(s || '').toLowerCase().replace(/^the\s+/, 
 function birthdayFor(artist) {
   const a = _normName(String(artist || '').split(/\s+(?:f\.?|ft\.?|feat\.?|featuring|w\/|w|with)\s+/i)[0].replace(/\s*\(.*?\)\s*/g, ' '));
   const now = new Date();
-  return _livePromos.find(p => p.artist && _normName(p.artist) === a &&
-    (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)));
+  return activePromos().find(p => p.kind !== 'y4550' && p.artist && _normName(p.artist) === a);
+}
+// This week's Your 45's Are 50 chart, when the song on air was on it
+function countdownFor(title, artist) {
+  const a = _normName(String(artist || '').split(/\s+(?:f\.?|ft\.?|feat\.?|featuring|w\/|w|with)\s+/i)[0]);
+  const t = _normName(String(title || '').replace(/\s*\(.*?\)\s*/g, ' '));
+  return activePromos().find(p => p.kind === 'y4550' && _normName(p.artist) === a &&
+    (_normName(p.title) === t || t.startsWith(_normName(p.title)) || _normName(p.title).startsWith(t)));
+}
+// Deep Dive notes: album/year for every Deep Dive, plus a verified fact for some
+let _ddNotes = null;
+async function deepDiveFor(title, artist) {
+  // dd-notes.json lists every Deep Dive in the station library (weekly from the prep hub)
+  if (!_ddNotes) { try { _ddNotes = await (await fetch('/dd-notes.json')).json(); } catch (_) { _ddNotes = {}; } }
+  const key = _normName(artist) + '|' + _normName(title);
+  if (!(key in _ddNotes) && lookupCategory(title || '', artist || '') !== 'DeepDive') return null;
+  const n = _ddNotes[key];
+  if (n && n.fact) return '🔎 Deep Dive · ' + n.fact;
+  if (n && n.album) return `🔎 Deep Dive · from "${n.album}"${n.year ? ' (' + n.year + ')' : ''}`;
+  return '🔎 Deep Dive · a track you won\'t hear on other stations';
 }
 
 async function refreshTourLine(artist) {
   _tourFor = artist;
   setTourLine(null);
+  if (_swagOpen) { showSwagLine(); return; }              // giveaway window beats everything
   const bday = birthdayFor(artist);
   if (bday) { showExtraLine(bday.text, null); return; }   // a birthday beats a tour plug
+  const title = document.getElementById('npTitle').textContent;
+  const y = countdownFor(title, artist);
+  if (y) { showExtraLine(y.text, null); return; }
   const d = await getTour(artist);
   if (_tourFor !== artist) return;          // song changed while we waited
   if (d && d.line && d.status !== 'none' && d.status !== 'error') {
@@ -2989,9 +3064,60 @@ async function refreshTourLine(artist) {
     setTourLine(d);
     layoutNowPlayingStrip();
   } else {
-    startPromos();                          // nothing special: rotate station promos
+    await loadLibrary();
+    const dd = await deepDiveFor(title, artist);
+    if (_tourFor !== artist) return;
+    if (dd) showExtraLine(dd, null);
+    else startPromos();                     // nothing special: rotate station promos
   }
 }
+
+// ── Swag giveaway: 3 short unannounced windows a day (server decides) ──
+let _swagOpen = false;
+function showSwagLine() {
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  document.getElementById('npIdle').style.display = 'none';
+  const el = document.getElementById('npTour');
+  el.textContent = '🎁 Tap HERE to win Yacht Rockin\' Radio swag!';
+  el.style.display = ''; el.classList.remove('no-link');
+  el.onclick = openSwag;
+  layoutNowPlayingStrip();
+}
+async function checkSwag() {
+  try {
+    const d = await (await fetch('/api/swag', { cache: 'no-store' })).json();
+    const was = _swagOpen; _swagOpen = !!d.open;
+    if (_swagOpen && !was) showSwagLine();
+    if (!_swagOpen && was) { const a = _tourFor; _tourFor = ''; if (a) refreshTourLine(a); else startPromos(); }
+  } catch (_) {}
+}
+checkSwag();
+setInterval(checkSwag, 2 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkSwag(); });
+
+const swagModal = document.getElementById('swag-modal');
+function openSwag() {
+  document.getElementById('swagMsg').textContent = '';
+  document.getElementById('swagForm').style.display = '';
+  swagModal.classList.add('open');
+}
+function closeSwag() { swagModal.classList.remove('open'); }
+document.getElementById('swagClose').addEventListener('click', closeSwag);
+swagModal.addEventListener('click', e => { if (e.target === swagModal) closeSwag(); });
+document.getElementById('swagForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, msg = document.getElementById('swagMsg');
+  msg.textContent = 'Sending…';
+  try {
+    const r = await fetch('/api/swag', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: f.name.value, email: f.email.value, state: f.state.value,
+        age18: f.age18.checked, rules: f.rules.checked, lid: getListenerId(),
+        track: trackTitle.textContent.trim(), artist: trackArtist.textContent.trim(), playing: isPlaying }) });
+    const d = await r.json();
+    if (d.ok) { f.style.display = 'none'; msg.textContent = "You're in! Winners are drawn from each day's entries and contacted by email. Good luck!"; }
+    else msg.textContent = d.error || 'Something went wrong. Please try again.';
+  } catch (_) { msg.textContent = 'Couldn\'t send your entry. Please try again.'; }
+});
 
 // ── Shows Near You sheet ──
 const showsModal = document.getElementById('shows-modal');
