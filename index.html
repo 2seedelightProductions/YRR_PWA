@@ -2962,7 +2962,7 @@ function setTourLine(d) {
   if (!d || !d.line || d.status === 'none' || d.status === 'error') {
     el.style.display = 'none'; el.textContent = ''; el.onclick = null; return;
   }
-  el.textContent = '🎟 ' + d.line;
+  el.textContent = (arguments[1] ? '' : '🎟 ') + d.line;
   el.style.display = '';
   el.classList.toggle('no-link', !d.url);
   el.onclick = d.url ? () => window.open(d.url, '_blank', 'noopener') : null;
@@ -2980,16 +2980,17 @@ async function refreshTourLine(artist) {
   _tourFor = artist;
   setTourLine(null);
   const bday = birthdayFor(artist);
-  if (bday) {                               // a birthday beats a tour plug
-    const el = document.getElementById('npTour');
-    if (el) { el.textContent = bday.text; el.style.display = ''; el.classList.add('no-link'); el.onclick = null; }
-    layoutNowPlayingStrip();
-    return;
-  }
+  if (bday) { showExtraLine(bday.text, null); return; }   // a birthday beats a tour plug
   const d = await getTour(artist);
   if (_tourFor !== artist) return;          // song changed while we waited
-  setTourLine(d);
-  layoutNowPlayingStrip();
+  if (d && d.line && d.status !== 'none' && d.status !== 'error') {
+    if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+    document.getElementById('npIdle').style.display = 'none';
+    setTourLine(d);
+    layoutNowPlayingStrip();
+  } else {
+    startPromos();                          // nothing special: rotate station promos
+  }
 }
 
 // ── Shows Near You sheet ──
@@ -3054,16 +3055,23 @@ function updateNowPlayingStrip(title, artist) {
     return;
   }
 
-  idle.style.display    = 'none';
-  label.style.display   = '';
-  dot1.style.display    = '';
-  npTitle.style.display = '';
-  dot2.style.display    = '';
-  npArtist.style.display = '';
-  npTitle.textContent   = title;
-  npArtist.textContent  = artist;
+  // The song title and artist are already shown above the strip, so during
+  // songs the strip carries only extras: birthday, tour, specialty or promos.
+  label.style.display = dot1.style.display = npTitle.style.display =
+  dot2.style.display = npArtist.style.display = 'none';
+  npTitle.textContent  = title;
+  npArtist.textContent = artist;
 
   if (artist !== _tourFor) refreshTourLine(artist);
+  layoutNowPlayingStrip();
+}
+
+function showExtraLine(text, url) {
+  // One extra line for this song; pauses the promo rotation
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  const idle = document.getElementById('npIdle');
+  if (idle) idle.style.display = 'none';
+  setTourLine({ line: text, url, status: 'x' }, true);
   layoutNowPlayingStrip();
 }
 
