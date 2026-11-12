@@ -2671,7 +2671,7 @@ let _promos = [
   'Shows Near You · see who\'s on tour · tap ☰',
   'Love the app? Share it with a friend · tap ☰',
 ];
-let _promoIdx = 0, _promoIv = null, _inBreak = false;
+let _promoIdx = 0, _promoIv = null, _inBreak = false, _livePromos = [];
 async function loadPromos() {
   try {
     const r = await fetch(PROMO_URL, { cache: 'no-store' });
@@ -2679,6 +2679,7 @@ async function loadPromos() {
     const now = new Date();
     const live = (d.promos || []).filter(p => p && p.text &&
       (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)));
+    _livePromos = live;
     if (live.length) _promos = live.map(p => p.text);
   } catch (_) { /* keep defaults */ }
 }
@@ -2966,9 +2967,25 @@ function setTourLine(d) {
   el.classList.toggle('no-link', !d.url);
   el.onclick = d.url ? () => window.open(d.url, '_blank', 'noopener') : null;
 }
+// Today's birthday for the artist on air (from crawl-promos.json "artist" field)
+function _normName(s) { return String(s || '').toLowerCase().replace(/^the\s+/, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, ''); }
+function birthdayFor(artist) {
+  const a = _normName(String(artist || '').split(/\s+(?:f\.?|ft\.?|feat\.?|featuring|w\/|w|with)\s+/i)[0].replace(/\s*\(.*?\)\s*/g, ' '));
+  const now = new Date();
+  return _livePromos.find(p => p.artist && _normName(p.artist) === a &&
+    (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)));
+}
+
 async function refreshTourLine(artist) {
   _tourFor = artist;
   setTourLine(null);
+  const bday = birthdayFor(artist);
+  if (bday) {                               // a birthday beats a tour plug
+    const el = document.getElementById('npTour');
+    if (el) { el.textContent = bday.text; el.style.display = ''; el.classList.add('no-link'); el.onclick = null; }
+    layoutNowPlayingStrip();
+    return;
+  }
   const d = await getTour(artist);
   if (_tourFor !== artist) return;          // song changed while we waited
   setTourLine(d);
