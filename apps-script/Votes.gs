@@ -37,6 +37,7 @@ const HOLDING = ['repick','1repick','undecided','fff_played'];
 // ── Vote endpoint ─────────────────────────────────────────────────
 function doGet(e) {
   const p = (e && e.parameter) || {};
+  if (p.type === 'swag') return swagEntry_(p);
   const vote = String(p.vote || '').toLowerCase();
   if (vote !== 'up' && vote !== 'down') return out_({ ok: false, error: 'bad vote' });
 
@@ -60,6 +61,31 @@ function doGet(e) {
     });
     sh.appendRow(row);
     return out_({ ok: true, category });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// ── Swag giveaway entries (sent by the app site's /api/swag check) ──
+// One entry per email or listener ID per window. Columns are created on first use.
+const SWAG_SHEET = 'Swag';
+const SWAG_COLS = ['Time (UTC)', 'Window', 'Name', 'Email', 'State', 'Listener ID', 'Song on air', 'Artist', 'Approx. location'];
+function swagEntry_(p) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName(SWAG_SHEET) || ss.insertSheet(SWAG_SHEET);
+    if (sh.getLastRow() === 0) sh.appendRow(SWAG_COLS);
+    const win = String(p.window || ''), email = String(p.email || '').toLowerCase(), lid = String(p.lid || '');
+    if (sh.getLastRow() > 1) {
+      const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues();
+      if (rows.some(r => r[1] === win && (String(r[3]).toLowerCase() === email || (lid && r[5] === lid))))
+        return out_({ ok: false, error: 'duplicate' });
+    }
+    sh.appendRow([new Date().toISOString(), win, p.name, email, p.state, lid, p.track, p.artist, p.geo]
+      .map(v => String(v || '').slice(0, 200)));
+    return out_({ ok: true });
   } finally {
     lock.releaseLock();
   }

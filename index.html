@@ -826,6 +826,8 @@
     .np-dot { color:var(--gold); padding:0 6px; flex-shrink:0; }
     .np-title  { color:var(--cream); font-size:12px; font-family:Arial,sans-serif; font-weight:600; }
     .np-artist { color:var(--sky);   font-size:12px; font-family:Arial,sans-serif; }
+    .np-tour   { color:var(--gold); font-size:12px; font-family:Arial,sans-serif; font-weight:600; padding-left:22px; cursor:pointer; }
+    .np-tour.no-link { cursor:default; }
     .np-idle   { color:var(--muted); font-size:11px; font-family:Arial,sans-serif; padding:0 14px; letter-spacing:0.04em; }
 
     /* ── Controls dock ── */
@@ -1032,6 +1034,38 @@
       border:1px solid rgba(255,255,255,0.12); border-radius:12px;
       color:var(--cream); font-size:15px; font-family:Arial,sans-serif; cursor:pointer;
     }
+    /* ── Swag giveaway ── */
+    #swag-modal { display:none; position:fixed; inset:0; z-index:9500; background:rgba(0,0,0,0.72); align-items:flex-end; justify-content:center; }
+    #swag-modal.open { display:flex; }
+    .swag-form { display:grid; gap:10px; padding:10px 22px 4px; font-family:Arial,sans-serif; }
+    .swag-form input:not([type=checkbox]), .swag-form select {
+      font-size:16px; padding:11px 12px; border-radius:10px; border:1px solid rgba(200,168,75,0.35);
+      background:rgba(255,255,255,0.06); color:var(--cream); }
+    .swag-form label { color:var(--cream); font-size:13px; display:flex; gap:8px; align-items:center; }
+    .swag-form a { color:var(--sky); }
+    .swag-go { margin-top:4px; padding:12px; border:0; border-radius:12px; background:var(--gold); color:#1a1408; font-weight:700; font-size:15px; }
+    .swag-fine { color:var(--muted); font-size:11px; text-align:center; }
+    .swag-msg { color:var(--cream); font-size:14px; padding:12px 22px 0; font-family:Arial,sans-serif; text-align:center; }
+
+    /* ── Shows Near You ── */
+    #shows-modal {
+      display:none; position:fixed; inset:0; z-index:9500;
+      background:rgba(0,0,0,0.72); align-items:flex-end; justify-content:center;
+    }
+    #shows-modal.open { display:flex; }
+    .shows-body { padding:8px 18px 4px; font-family:Arial,sans-serif; }
+    .shows-msg  { color:var(--muted); font-size:13px; padding:18px 4px; text-align:center; }
+    .show-row {
+      display:grid; grid-template-columns:1fr auto; gap:2px 12px; align-items:center;
+      padding:12px 4px; border-bottom:1px solid rgba(200,168,75,0.10); cursor:pointer;
+    }
+    .show-row:active { background:rgba(255,255,255,0.05); }
+    .show-artist { color:var(--cream); font-size:14px; font-weight:600; }
+    .show-where  { color:var(--sky); font-size:12px; grid-column:1; }
+    .show-dist   { color:var(--gold); font-size:11px; grid-row:1 / span 2; grid-column:2; text-align:right; white-space:nowrap; }
+    .shows-group { color:var(--gold); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; padding:16px 4px 4px; }
+    .shows-foot  { color:var(--muted); font-size:10.5px; line-height:1.4; padding:12px 22px 0; font-family:Arial,sans-serif; }
+
     /* ── Contact Sheet ── */
     #contact-modal {
       display:none; position:fixed; inset:0; z-index:9500;
@@ -1287,6 +1321,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share the App
     </a>
     <div class="drawer-divider"></div>
+    <a href="#" id="showsBtn" onclick="openShows();return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a3 3 0 010 6v4a1 1 0 001 1h16a1 1 0 001-1v-4a3 3 0 010-6V5a1 1 0 00-1-1H4a1 1 0 00-1 1z"/><line x1="14" y1="4" x2="14" y2="20" stroke-dasharray="2 2"/></svg>Shows Near You
+    </a>
+    <div class="drawer-divider"></div>
     <a href="#" id="contactBtn" onclick="openContact();return false;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Contact the Station
     </a>
@@ -1500,6 +1538,7 @@
         <span class="np-title"  id="npTitle"  style="display:none"></span>
         <span class="np-dot"  id="npDot2" style="display:none">&nbsp;&mdash;&nbsp;</span>
         <span class="np-artist" id="npArtist" style="display:none"></span>
+        <span class="np-tour" id="npTour" style="display:none"></span>
       </div>
     </div>
 
@@ -1560,6 +1599,42 @@
   <div class="ib-text"><strong>Add to Home Screen</strong><span>Install Yacht Rockin' Radio as an app</span></div>
   <button class="ib-btn" id="installBtn">Install</button>
   <button class="ib-close" id="bannerClose">&times;</button>
+</div>
+
+<!-- Swag Giveaway Sheet -->
+<div id="swag-modal">
+  <div class="contact-sheet">
+    <div class="cs-header">
+      <div class="cs-title">Win Yacht Rockin' Radio Swag</div>
+      <div class="cs-sub">Enter while this window is open</div>
+      <button class="cs-close" id="swagClose">&times;</button>
+    </div>
+    <form id="swagForm" class="swag-form" autocomplete="on">
+      <input name="name"  placeholder="Full name" required autocomplete="name">
+      <input name="email" type="email" placeholder="Email" required autocomplete="email">
+      <select name="state" required><option value="">State</option>
+        <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+      </select>
+      <label><input type="checkbox" name="age18"> I'm 18 or older and a US resident</label>
+      <label><input type="checkbox" name="rules"> I agree to the <a href="/swag-rules.html" target="_blank" rel="noopener">official rules</a></label>
+      <button type="submit" class="swag-go">Enter to win</button>
+      <div class="swag-fine">No purchase necessary. You must be listening when you enter.</div>
+    </form>
+    <div class="swag-msg" id="swagMsg"></div>
+  </div>
+</div>
+
+<!-- Shows Near You Sheet -->
+<div id="shows-modal">
+  <div class="contact-sheet">
+    <div class="cs-header">
+      <div class="cs-title">Shows Near You</div>
+      <div class="cs-sub" id="showsSub">Artists you hear on YRR, still on the road</div>
+      <button class="cs-close" id="showsClose">&times;</button>
+    </div>
+    <div class="shows-body" id="showsBody"><div class="shows-msg">Checking tour dates…</div></div>
+    <div class="shows-foot">Tour dates from Ticketmaster, updated weekly. Your location is approximate, from your connection, and isn't stored.</div>
+  </div>
 </div>
 
 <!-- Contact Sheet -->
@@ -1690,7 +1765,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.3';
+const APP_VERSION   = 'v1.5.4';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2603,14 +2678,107 @@ function fmtAgo(date) {
 }
 
 function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // Refresh "ago" timestamps every minute
 setInterval(() => { if (recentTracks.length) renderRecents(); }, 60000);
 
 // ── renderTrackUI — applies one track to all display surfaces ──────────
+// ── Ad breaks / sweepers / promos: show station promos, not the raw log name ──
+// NextKast sends breaks as e.g. "Live365 - ADBREAK_120000 3". Those (and
+// sweepers, BRBs, IDs, NostalgiAds) get station promos in the crawl, no Amazon
+// button, no thumbs, no recents.
+const NON_MUSIC_RE = /ADBREAK_|^live365\b|^VoiceGal\b|^LegalID\b|^breakNote\b|^BRB\b|Network Break|Hoober Sweep|^YRP Promo|^4550 - Generic|^HB_\d|^YCL_|^SummerJam - |NostalgiAds|^VoiceTrack/i;
+const NON_MUSIC_CATS = new Set(['AdBreak120','Commercials','Network','BRB','PROMO','LegalID','YRRSweepers','YCL Sweepers','HB Sweeps','SummerJams','breakNote','Talk Break','FinalMessage']);
+function isNonMusic(title, artist) {
+  if (NON_MUSIC_RE.test(`${artist} - ${title}`) || NON_MUSIC_RE.test(title)) return true;
+  return NON_MUSIC_CATS.has(lookupCategory(title || '', artist || ''));
+}
+
+// Promos live on the prep site so they can change without an app update.
+// Each: { "text": "...", "start": "2026-11-12T00:00:00-05:00", "end": "..." } (dates optional)
+const PROMO_URL = '/crawl-promos.json';
+let _promos = [
+  'Call or text us anytime · 702-YR-YACHT',
+  'Join the Yacht Club Lunch Bunch · yachtclublunch.com',
+  "Your 45's Are 50 · Saturdays 8–10a ET",
+  'Shows Near You · see who\'s on tour · tap ☰',
+  'Love the app? Share it with a friend · tap ☰',
+];
+let _promoIdx = 0, _promoIv = null, _inBreak = false, _livePromos = [], _allPromos = [];
+// Eastern day (0=Sun) and hour, for promos with "days"/"hours"
+function easternNow() {
+  const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', hourCycle: 'h23' });
+  const p = Object.fromEntries(f.formatToParts(new Date()).map(x => [x.type, x.value]));
+  return { day: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday), hour: +p.hour };
+}
+function activePromos() {
+  const now = new Date(), et = easternNow();
+  return _allPromos.filter(p => p && p.text &&
+    (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)) &&
+    (!p.days  || p.days.includes(et.day)) &&
+    (!p.hours || (et.hour >= p.hours[0] && et.hour < p.hours[1])));
+}
+async function loadPromos() {
+  try {
+    const r = await fetch(PROMO_URL, { cache: 'no-store' });
+    const d = await r.json();
+    const now = new Date();
+    const live = (d.promos || []).filter(p => p && p.text &&
+      (!p.start || new Date(p.start) <= now) && (!p.end || now <= new Date(p.end)));
+    _allPromos = d.promos || [];
+    _livePromos = live;
+    const rot = activePromos().filter(p => p.kind !== 'y4550');
+    if (rot.length) _promos = rot.map(p => p.text);
+  } catch (_) { /* keep defaults */ }
+}
+loadPromos();
+setInterval(loadPromos, 15 * 60 * 1000);
+
+function showPromo() {
+  const idle  = document.getElementById('npIdle');
+  const inner = document.getElementById('nowplayingInner');
+  if (!idle || !_promos.length) return;
+  ['npLabel','npDot','npTitle','npDot2','npArtist','npTour'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  const rot = _allPromos.length ? activePromos().filter(p => p.kind !== 'y4550').map(p => p.text) : _promos;
+  const list = rot.length ? rot : _promos;
+  idle.textContent = list[_promoIdx++ % list.length];
+  idle.style.display = '';
+  inner.classList.remove('crawl');
+  layoutNowPlayingStrip();
+}
+function startPromos() {
+  if (_promoIv) return;
+  showPromo();
+  _promoIv = setInterval(showPromo, 20000);
+}
+function stopPromos() {
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  const idle = document.getElementById('npIdle');
+  if (idle) idle.textContent = "The Best Yacht, Rock and Retro 24/7!";
+}
+
+function renderBreakUI() {
+  const amzBtn = document.getElementById('amzBtn');
+  if (amzBtn) amzBtn.style.display = 'none';
+  voteBarHide();
+  _tourFor = ''; setTourLine(null);
+  if (_inBreak) return;
+  _inBreak = true;
+  trackTitle.textContent  = "Yacht Rockin' Radio";
+  trackArtist.textContent = 'Back in a moment…';
+  document.getElementById('dtoTitle').textContent  = trackTitle.textContent;
+  document.getElementById('dtoArtist').textContent = trackArtist.textContent;
+  startPromos();
+}
+
 function renderTrackUI(title, artist) {
+  if (isNonMusic(title, artist)) { renderBreakUI(); return; }
+  if (_inBreak) { _inBreak = false; stopPromos(); }
   trackTitle.textContent  = title;
   trackArtist.textContent = artist;
   document.getElementById('dtoTitle').textContent  = title;
@@ -2825,6 +2993,174 @@ async function sendVote(vote) {
 document.getElementById('btnThumbUp')  ?.addEventListener('click', () => sendVote('up'));
 document.getElementById('btnThumbDown')?.addEventListener('click', () => sendVote('down'));
 
+// ── Still Touring: crawl line from the weekly Ticketmaster sweep ──
+// Location is Netlify's approximate city/country for the connection; the
+// prep site answers per artist and nothing about the listener is stored.
+const TOUR_API = '/api/tour-near';
+const _tourCache = {};
+let _tourFor = '';
+async function getTour(artist) {
+  if (!artist) return null;
+  if (_tourCache[artist]) return _tourCache[artist];
+  try {
+    const r = await fetch(`${TOUR_API}?artist=${encodeURIComponent(artist)}`);
+    const d = await r.json();
+    _tourCache[artist] = d;
+    return d;
+  } catch (_) { return null; }
+}
+function setTourLine(d) {
+  const el = document.getElementById('npTour');
+  if (!el) return;
+  if (!d || !d.line || d.status === 'none' || d.status === 'error') {
+    el.style.display = 'none'; el.textContent = ''; el.onclick = null; return;
+  }
+  el.textContent = (arguments[1] ? '' : '🎟 ') + d.line;
+  el.style.display = '';
+  el.classList.toggle('no-link', !d.url);
+  el.onclick = d.url ? () => window.open(d.url, '_blank', 'noopener') : null;
+}
+// Today's birthday for the artist on air (from crawl-promos.json "artist" field)
+function _normName(s) { return String(s || '').toLowerCase().replace(/^the\s+/, '').replace(/&/g, 'and').replace(/[^a-z0-9]/g, ''); }
+function birthdayFor(artist) {
+  const a = _normName(String(artist || '').split(/\s+(?:f\.?|ft\.?|feat\.?|featuring|w\/|w|with)\s+/i)[0].replace(/\s*\(.*?\)\s*/g, ' '));
+  const now = new Date();
+  return activePromos().find(p => p.kind !== 'y4550' && p.artist && _normName(p.artist) === a);
+}
+// This week's Your 45's Are 50 chart, when the song on air was on it
+function countdownFor(title, artist) {
+  const a = _normName(String(artist || '').split(/\s+(?:f\.?|ft\.?|feat\.?|featuring|w\/|w|with)\s+/i)[0]);
+  const t = _normName(String(title || '').replace(/\s*\(.*?\)\s*/g, ' '));
+  return activePromos().find(p => p.kind === 'y4550' && _normName(p.artist) === a &&
+    (_normName(p.title) === t || t.startsWith(_normName(p.title)) || _normName(p.title).startsWith(t)));
+}
+// Deep Dive notes: album/year for every Deep Dive, plus a verified fact for some
+let _ddNotes = null;
+async function deepDiveFor(title, artist) {
+  // dd-notes.json lists every Deep Dive in the station library (weekly from the prep hub)
+  if (!_ddNotes) { try { _ddNotes = await (await fetch('/dd-notes.json')).json(); } catch (_) { _ddNotes = {}; } }
+  const key = _normName(artist) + '|' + _normName(title);
+  if (!(key in _ddNotes) && lookupCategory(title || '', artist || '') !== 'DeepDive') return null;
+  const n = _ddNotes[key];
+  if (n && n.fact) return '🔎 Deep Dive · ' + n.fact;
+  if (n && n.album) return `🔎 Deep Dive · from "${n.album}"${n.year ? ' (' + n.year + ')' : ''}`;
+  return '🔎 Deep Dive · a track you won\'t hear on other stations';
+}
+
+async function refreshTourLine(artist) {
+  _tourFor = artist;
+  setTourLine(null);
+  if (_swagOpen) { showSwagLine(); return; }              // giveaway window beats everything
+  const bday = birthdayFor(artist);
+  if (bday) { showExtraLine(bday.text, null); return; }   // a birthday beats a tour plug
+  const title = document.getElementById('npTitle').textContent;
+  const y = countdownFor(title, artist);
+  if (y) { showExtraLine(y.text, null); return; }
+  const d = await getTour(artist);
+  if (_tourFor !== artist) return;          // song changed while we waited
+  if (d && d.line && d.status !== 'none' && d.status !== 'error') {
+    if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+    document.getElementById('npIdle').style.display = 'none';
+    setTourLine(d);
+    layoutNowPlayingStrip();
+  } else {
+    await loadLibrary();
+    const dd = await deepDiveFor(title, artist);
+    if (_tourFor !== artist) return;
+    if (dd) showExtraLine(dd, null);
+    else startPromos();                     // nothing special: rotate station promos
+  }
+}
+
+// ── Swag giveaway: 3 short unannounced windows a day (server decides) ──
+let _swagOpen = false;
+function showSwagLine() {
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  document.getElementById('npIdle').style.display = 'none';
+  const el = document.getElementById('npTour');
+  el.textContent = '🎁 Tap HERE to win Yacht Rockin\' Radio swag!';
+  el.style.display = ''; el.classList.remove('no-link');
+  el.onclick = openSwag;
+  layoutNowPlayingStrip();
+}
+async function checkSwag() {
+  try {
+    const d = await (await fetch('/api/swag', { cache: 'no-store' })).json();
+    const was = _swagOpen; _swagOpen = !!d.open;
+    if (_swagOpen && !was) showSwagLine();
+    if (!_swagOpen && was) { const a = _tourFor; _tourFor = ''; if (a) refreshTourLine(a); else startPromos(); }
+  } catch (_) {}
+}
+checkSwag();
+setInterval(checkSwag, 2 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkSwag(); });
+
+const swagModal = document.getElementById('swag-modal');
+function openSwag() {
+  document.getElementById('swagMsg').textContent = '';
+  document.getElementById('swagForm').style.display = '';
+  swagModal.classList.add('open');
+}
+function closeSwag() { swagModal.classList.remove('open'); }
+document.getElementById('swagClose').addEventListener('click', closeSwag);
+swagModal.addEventListener('click', e => { if (e.target === swagModal) closeSwag(); });
+document.getElementById('swagForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, msg = document.getElementById('swagMsg');
+  msg.textContent = 'Sending…';
+  try {
+    const r = await fetch('/api/swag', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: f.name.value, email: f.email.value, state: f.state.value,
+        age18: f.age18.checked, rules: f.rules.checked, lid: getListenerId(),
+        track: trackTitle.textContent.trim(), artist: trackArtist.textContent.trim(), playing: isPlaying }) });
+    const d = await r.json();
+    if (d.ok) { f.style.display = 'none'; msg.textContent = "You're in! Winners are drawn from each day's entries and contacted by email. Good luck!"; }
+    else msg.textContent = d.error || 'Something went wrong. Please try again.';
+  } catch (_) { msg.textContent = 'Couldn\'t send your entry. Please try again.'; }
+});
+
+// ── Shows Near You sheet ──
+const showsModal = document.getElementById('shows-modal');
+let _showsLoaded = false;
+async function openShows() {
+  closeMenu();
+  showsModal.classList.add('open');
+  if (_showsLoaded) return;
+  const body = document.getElementById('showsBody');
+  try {
+    const r = await fetch(`${TOUR_API}?list=1`);
+    const d = await r.json();
+    const shows = d.shows || [];
+    if (!shows.length) { body.innerHTML = '<div class="shows-msg">No tour dates right now. Check back next week.</div>'; return; }
+    if (d.where?.city) document.getElementById('showsSub').textContent = `Nearest to ${d.where.city} first`;
+    const near  = shows.filter(s => s.status === 'near');
+    const other = shows.filter(s => s.status !== 'near');
+    const row = s => {
+      const sh = s.status === 'near' ? s.show : s.nearest;
+      const where = s.status === 'near'
+        ? `${sh.venue}, ${sh.city} · ${new Date(sh.date + 'T12:00:00').toLocaleDateString(undefined, {month:'short', day:'numeric'})}`
+        : s.line;
+      const dist = sh?.miles != null ? `${sh.miles.toLocaleString()} mi` : '';
+      return `<div class="show-row" data-url="${escHtml(s.url || '')}">
+        <div class="show-artist">${escHtml(s.artist)}</div>
+        <div class="show-dist">${escHtml(dist)}</div>
+        <div class="show-where">${escHtml(where)}</div></div>`;
+    };
+    body.innerHTML =
+      (near.length  ? `<div class="shows-group">Near you</div>${near.map(row).join('')}` : '') +
+      (other.length ? `<div class="shows-group">${near.length ? 'Further afield' : 'On the road'}</div>${other.map(row).join('')}` : '');
+    body.querySelectorAll('.show-row').forEach(el => el.addEventListener('click', () => {
+      if (el.dataset.url) window.open(el.dataset.url, '_blank', 'noopener');
+    }));
+    _showsLoaded = true;
+  } catch (_) {
+    body.innerHTML = '<div class="shows-msg">Couldn\'t load tour dates. Try again in a bit.</div>';
+  }
+}
+function closeShows() { showsModal.classList.remove('open'); }
+document.getElementById('showsClose').addEventListener('click', closeShows);
+showsModal.addEventListener('click', e => { if (e.target === showsModal) closeShows(); });
+
 // ── Now-playing crawl strip ──────────────────────────────────────
 function updateNowPlayingStrip(title, artist) {
   const idle    = document.getElementById('npIdle');
@@ -2841,18 +3177,33 @@ function updateNowPlayingStrip(title, artist) {
     idle.style.display = ''; label.style.display = npTitle.style.display =
     dot1.style.display = dot2.style.display = npArtist.style.display = 'none';
     inner.classList.remove('crawl');
+    _tourFor = ''; setTourLine(null);
     return;
   }
 
-  idle.style.display    = 'none';
-  label.style.display   = '';
-  dot1.style.display    = '';
-  npTitle.style.display = '';
-  dot2.style.display    = '';
-  npArtist.style.display = '';
-  npTitle.textContent   = title;
-  npArtist.textContent  = artist;
+  // The song title and artist are already shown above the strip, so during
+  // songs the strip carries only extras: birthday, tour, specialty or promos.
+  label.style.display = dot1.style.display = npTitle.style.display =
+  dot2.style.display = npArtist.style.display = 'none';
+  npTitle.textContent  = title;
+  npArtist.textContent = artist;
 
+  if (artist !== _tourFor) refreshTourLine(artist);
+  layoutNowPlayingStrip();
+}
+
+function showExtraLine(text, url) {
+  // One extra line for this song; pauses the promo rotation
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  const idle = document.getElementById('npIdle');
+  if (idle) idle.style.display = 'none';
+  setTourLine({ line: text, url, status: 'x' }, true);
+  layoutNowPlayingStrip();
+}
+
+function layoutNowPlayingStrip() {
+  const inner = document.getElementById('nowplayingInner');
+  if (!inner) return;
   // Decide crawl vs static after paint
   requestAnimationFrame(() => {
     const stripW = document.getElementById('nowplayingStrip').clientWidth;
