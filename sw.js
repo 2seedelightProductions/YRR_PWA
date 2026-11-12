@@ -3,7 +3,7 @@
 // Previously respondWith(fetch()) proxied the endless Live365 stream through
 // the SW; when the browser froze/killed the SW (screen off, app backgrounded)
 // the stream died after the buffer drained.
-const CACHE_NAME = 'yacht-rock-v1-5-4';
+const CACHE_NAME = 'yacht-rock-v1-5-5';
 const SHELL_FILES = [
   '/',
   '/index.html',

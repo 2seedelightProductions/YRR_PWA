@@ -826,6 +826,8 @@
     .np-dot { color:var(--gold); padding:0 6px; flex-shrink:0; }
     .np-title  { color:var(--cream); font-size:12px; font-family:Arial,sans-serif; font-weight:600; }
     .np-artist { color:var(--sky);   font-size:12px; font-family:Arial,sans-serif; }
+    .np-tour   { color:var(--gold); font-size:12px; font-family:Arial,sans-serif; font-weight:600; padding-left:22px; cursor:pointer; }
+    .np-tour.no-link { cursor:default; }
     .np-idle   { color:var(--muted); font-size:11px; font-family:Arial,sans-serif; padding:0 14px; letter-spacing:0.04em; }
 
     /* ── Controls dock ── */
@@ -1500,6 +1502,7 @@
         <span class="np-title"  id="npTitle"  style="display:none"></span>
         <span class="np-dot"  id="npDot2" style="display:none">&nbsp;&mdash;&nbsp;</span>
         <span class="np-artist" id="npArtist" style="display:none"></span>
+        <span class="np-tour" id="npTour" style="display:none"></span>
       </div>
     </div>
 
@@ -1690,7 +1693,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.3';
+const APP_VERSION   = 'v1.5.4';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2825,6 +2828,42 @@ async function sendVote(vote) {
 document.getElementById('btnThumbUp')  ?.addEventListener('click', () => sendVote('up'));
 document.getElementById('btnThumbDown')?.addEventListener('click', () => sendVote('down'));
 
+// ── Still Touring: crawl line from the weekly Ticketmaster sweep ──
+// Location is Netlify's approximate city/country for the connection; the
+// prep site answers per artist and nothing about the listener is stored.
+const TOUR_API = 'https://prep.yachtrockinradio.com/api/tour-near';
+const _tourCache = {};
+let _tourFor = '';
+async function getTour(artist) {
+  if (!artist) return null;
+  if (_tourCache[artist]) return _tourCache[artist];
+  try {
+    const r = await fetch(`${TOUR_API}?artist=${encodeURIComponent(artist)}`);
+    const d = await r.json();
+    _tourCache[artist] = d;
+    return d;
+  } catch (_) { return null; }
+}
+function setTourLine(d) {
+  const el = document.getElementById('npTour');
+  if (!el) return;
+  if (!d || !d.line || d.status === 'none' || d.status === 'error') {
+    el.style.display = 'none'; el.textContent = ''; el.onclick = null; return;
+  }
+  el.textContent = '🎟 ' + d.line;
+  el.style.display = '';
+  el.classList.toggle('no-link', !d.url);
+  el.onclick = d.url ? () => window.open(d.url, '_blank', 'noopener') : null;
+}
+async function refreshTourLine(artist) {
+  _tourFor = artist;
+  setTourLine(null);
+  const d = await getTour(artist);
+  if (_tourFor !== artist) return;          // song changed while we waited
+  setTourLine(d);
+  layoutNowPlayingStrip();
+}
+
 // ── Now-playing crawl strip ──────────────────────────────────────
 function updateNowPlayingStrip(title, artist) {
   const idle    = document.getElementById('npIdle');
@@ -2841,6 +2880,7 @@ function updateNowPlayingStrip(title, artist) {
     idle.style.display = ''; label.style.display = npTitle.style.display =
     dot1.style.display = dot2.style.display = npArtist.style.display = 'none';
     inner.classList.remove('crawl');
+    _tourFor = ''; setTourLine(null);
     return;
   }
 
@@ -2853,6 +2893,13 @@ function updateNowPlayingStrip(title, artist) {
   npTitle.textContent   = title;
   npArtist.textContent  = artist;
 
+  if (artist !== _tourFor) refreshTourLine(artist);
+  layoutNowPlayingStrip();
+}
+
+function layoutNowPlayingStrip() {
+  const inner = document.getElementById('nowplayingInner');
+  if (!inner) return;
   // Decide crawl vs static after paint
   requestAnimationFrame(() => {
     const stripW = document.getElementById('nowplayingStrip').clientWidth;
