@@ -1034,6 +1034,25 @@
       border:1px solid rgba(255,255,255,0.12); border-radius:12px;
       color:var(--cream); font-size:15px; font-family:Arial,sans-serif; cursor:pointer;
     }
+    /* ── Shows Near You ── */
+    #shows-modal {
+      display:none; position:fixed; inset:0; z-index:9500;
+      background:rgba(0,0,0,0.72); align-items:flex-end; justify-content:center;
+    }
+    #shows-modal.open { display:flex; }
+    .shows-body { padding:8px 18px 4px; font-family:Arial,sans-serif; }
+    .shows-msg  { color:var(--muted); font-size:13px; padding:18px 4px; text-align:center; }
+    .show-row {
+      display:grid; grid-template-columns:1fr auto; gap:2px 12px; align-items:center;
+      padding:12px 4px; border-bottom:1px solid rgba(200,168,75,0.10); cursor:pointer;
+    }
+    .show-row:active { background:rgba(255,255,255,0.05); }
+    .show-artist { color:var(--cream); font-size:14px; font-weight:600; }
+    .show-where  { color:var(--sky); font-size:12px; grid-column:1; }
+    .show-dist   { color:var(--gold); font-size:11px; grid-row:1 / span 2; grid-column:2; text-align:right; white-space:nowrap; }
+    .shows-group { color:var(--gold); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; padding:16px 4px 4px; }
+    .shows-foot  { color:var(--muted); font-size:10.5px; line-height:1.4; padding:12px 22px 0; font-family:Arial,sans-serif; }
+
     /* ── Contact Sheet ── */
     #contact-modal {
       display:none; position:fixed; inset:0; z-index:9500;
@@ -1287,6 +1306,10 @@
     <div class="drawer-divider"></div>
     <a href="#" onclick="shareApp();return false;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share the App
+    </a>
+    <div class="drawer-divider"></div>
+    <a href="#" id="showsBtn" onclick="openShows();return false;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a3 3 0 010 6v4a1 1 0 001 1h16a1 1 0 001-1v-4a3 3 0 010-6V5a1 1 0 00-1-1H4a1 1 0 00-1 1z"/><line x1="14" y1="4" x2="14" y2="20" stroke-dasharray="2 2"/></svg>Shows Near You
     </a>
     <div class="drawer-divider"></div>
     <a href="#" id="contactBtn" onclick="openContact();return false;">
@@ -1563,6 +1586,19 @@
   <div class="ib-text"><strong>Add to Home Screen</strong><span>Install Yacht Rockin' Radio as an app</span></div>
   <button class="ib-btn" id="installBtn">Install</button>
   <button class="ib-close" id="bannerClose">&times;</button>
+</div>
+
+<!-- Shows Near You Sheet -->
+<div id="shows-modal">
+  <div class="contact-sheet">
+    <div class="cs-header">
+      <div class="cs-title">Shows Near You</div>
+      <div class="cs-sub" id="showsSub">Artists you hear on YRR, still on the road</div>
+      <button class="cs-close" id="showsClose">&times;</button>
+    </div>
+    <div class="shows-body" id="showsBody"><div class="shows-msg">Checking tour dates…</div></div>
+    <div class="shows-foot">Tour dates from Ticketmaster, updated weekly. Your location is approximate, from your connection, and isn't stored.</div>
+  </div>
 </div>
 
 <!-- Contact Sheet -->
@@ -2863,6 +2899,49 @@ async function refreshTourLine(artist) {
   setTourLine(d);
   layoutNowPlayingStrip();
 }
+
+// ── Shows Near You sheet ──
+const showsModal = document.getElementById('shows-modal');
+let _showsLoaded = false;
+function escHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function openShows() {
+  closeMenu();
+  showsModal.classList.add('open');
+  if (_showsLoaded) return;
+  const body = document.getElementById('showsBody');
+  try {
+    const r = await fetch(`${TOUR_API}?list=1`);
+    const d = await r.json();
+    const shows = d.shows || [];
+    if (!shows.length) { body.innerHTML = '<div class="shows-msg">No tour dates right now. Check back next week.</div>'; return; }
+    if (d.where?.city) document.getElementById('showsSub').textContent = `Nearest to ${d.where.city} first`;
+    const near  = shows.filter(s => s.status === 'near');
+    const other = shows.filter(s => s.status !== 'near');
+    const row = s => {
+      const sh = s.status === 'near' ? s.show : s.nearest;
+      const where = s.status === 'near'
+        ? `${sh.venue}, ${sh.city} · ${new Date(sh.date + 'T12:00:00').toLocaleDateString(undefined, {month:'short', day:'numeric'})}`
+        : s.line;
+      const dist = sh?.miles != null ? `${sh.miles.toLocaleString()} mi` : '';
+      return `<div class="show-row" data-url="${escHtml(s.url || '')}">
+        <div class="show-artist">${escHtml(s.artist)}</div>
+        <div class="show-dist">${escHtml(dist)}</div>
+        <div class="show-where">${escHtml(where)}</div></div>`;
+    };
+    body.innerHTML =
+      (near.length  ? `<div class="shows-group">Near you</div>${near.map(row).join('')}` : '') +
+      (other.length ? `<div class="shows-group">${near.length ? 'Further afield' : 'On the road'}</div>${other.map(row).join('')}` : '');
+    body.querySelectorAll('.show-row').forEach(el => el.addEventListener('click', () => {
+      if (el.dataset.url) window.open(el.dataset.url, '_blank', 'noopener');
+    }));
+    _showsLoaded = true;
+  } catch (_) {
+    body.innerHTML = '<div class="shows-msg">Couldn\'t load tour dates. Try again in a bit.</div>';
+  }
+}
+function closeShows() { showsModal.classList.remove('open'); }
+document.getElementById('showsClose').addEventListener('click', closeShows);
+showsModal.addEventListener('click', e => { if (e.target === showsModal) closeShows(); });
 
 // ── Now-playing crawl strip ──────────────────────────────────────
 function updateNowPlayingStrip(title, artist) {
