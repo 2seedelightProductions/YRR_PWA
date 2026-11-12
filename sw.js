@@ -69,6 +69,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Live data on our own site — always from the network, never cached
+  if (url.pathname.startsWith('/api/') || url.pathname === '/crawl-promos.json') {
+    return;
+  }
+
 
   // Local shell files — cache-first, fall back to network
   event.respondWith(

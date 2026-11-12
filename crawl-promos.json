@@ -1,0 +1,187 @@
+{
+ "_how": "Messages the YRR app shows in the crawl during ad breaks, sweepers and promos. Rotates every 20 seconds. start/end are optional (Eastern time shown with -05:00). Expired lines are ignored, so old notices can stay until cleanup. Lines with \"artist\" also show in the crawl while that artist is playing that day. Birthdays come from the YRR Google Calendar (🎂 living, 🕯️ remembered).",
+ "promos": [
+  {
+   "text": "Ensign Williams is off today for a job interview · wish him luck!",
+   "start": "2026-11-12T00:00:00-05:00",
+   "end": "2026-11-12T23:59:00-05:00"
+  },
+  {
+   "text": "Call or text us anytime · 702-YR-YACHT"
+  },
+  {
+   "text": "Join the Yacht Club Lunch Bunch · yachtclublunch.com"
+  },
+  {
+   "text": "Your 45's Are 50 · Saturdays 8–10a ET"
+  },
+  {
+   "text": "Shows Near You · see who's on tour · tap ☰"
+  },
+  {
+   "text": "Love the app? Share it with a friend · tap ☰"
+  },
+  {
+   "text": "🎂 Happy birthday, Neil Young · 81 today",
+   "artist": "Neil Young",
+   "kind": "birthday",
+   "start": "2026-11-12T00:00:00-05:00",
+   "end": "2026-11-12T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Errol Brown of Hot Chocolate · born this day in 1943",
+   "artist": "Hot Chocolate",
+   "kind": "birthday",
+   "start": "2026-11-12T00:00:00-05:00",
+   "end": "2026-11-12T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Les McKeown of the Bay City Rollers · born this day in 1955",
+   "artist": "Bay City Rollers",
+   "kind": "birthday",
+   "start": "2026-11-12T00:00:00-05:00",
+   "end": "2026-11-12T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Timmy Thomas · born this day in 1944",
+   "artist": "Timmy Thomas",
+   "kind": "birthday",
+   "start": "2026-11-13T00:00:00-05:00",
+   "end": "2026-11-13T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, James \"JY\" Young of Styx · 77 today",
+   "artist": "Styx",
+   "kind": "birthday",
+   "start": "2026-11-14T00:00:00-05:00",
+   "end": "2026-11-14T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Frida Lyngstad of ABBA · 81 today",
+   "artist": "ABBA",
+   "kind": "birthday",
+   "start": "2026-11-15T00:00:00-05:00",
+   "end": "2026-11-15T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Petula Clark · 94 today",
+   "artist": "Petula Clark",
+   "kind": "birthday",
+   "start": "2026-11-15T00:00:00-05:00",
+   "end": "2026-11-15T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Diana Krall · 62 today",
+   "artist": "Diana Krall",
+   "kind": "birthday",
+   "start": "2026-11-16T00:00:00-05:00",
+   "end": "2026-11-16T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Gordon Lightfoot · born this day in 1938",
+   "artist": "Gordon Lightfoot",
+   "kind": "birthday",
+   "start": "2026-11-17T00:00:00-05:00",
+   "end": "2026-11-17T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Joe Walsh of the Eagles · 79 today",
+   "artist": "Eagles",
+   "kind": "birthday",
+   "start": "2026-11-20T00:00:00-05:00",
+   "end": "2026-11-20T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Duane Allman of the Allman Brothers Band · born this day in 1946",
+   "artist": "Allman Brothers Band",
+   "kind": "birthday",
+   "start": "2026-11-20T00:00:00-05:00",
+   "end": "2026-11-20T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Lonnie Jordan of War · 78 today",
+   "artist": "War",
+   "kind": "birthday",
+   "start": "2026-11-21T00:00:00-05:00",
+   "end": "2026-11-21T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Tina Turner · born this day in 1939",
+   "artist": "Tina Turner",
+   "kind": "birthday",
+   "start": "2026-11-26T00:00:00-05:00",
+   "end": "2026-11-26T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Michael Omartian · producer of Christopher Cross's debut · 81 today",
+   "artist": "Christopher Cross",
+   "kind": "birthday",
+   "start": "2026-11-26T00:00:00-05:00",
+   "end": "2026-11-26T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering Eddie Rabbitt · born this day in 1941",
+   "artist": "Eddie Rabbitt",
+   "kind": "birthday",
+   "start": "2026-11-27T00:00:00-05:00",
+   "end": "2026-11-27T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Beeb Birtles of Little River Band · 78 today",
+   "artist": "Little River Band",
+   "kind": "birthday",
+   "start": "2026-11-28T00:00:00-05:00",
+   "end": "2026-11-28T23:59:00-05:00"
+  },
+  {
+   "text": "🕯️ Remembering June Pointer of the Pointer Sisters · born this day in 1953",
+   "artist": "Pointer Sisters",
+   "kind": "birthday",
+   "start": "2026-11-30T00:00:00-05:00",
+   "end": "2026-11-30T23:59:00-05:00"
+  },
+  {
+   "text": "🎂 Happy birthday, Bette Midler · 81 today",
+   "artist": "Bette Midler",
+   "kind": "birthday",
+   "start": "2026-12-01T00:00:00-05:00",
+   "end": "2026-12-01T23:59:00-05:00"
+  },
+  {
+   "text": "🦃 Happy Thanksgiving from Capt. Hugh and everyone at Studio Sea · we're thankful for you",
+   "kind": "holiday",
+   "start": "2026-11-26T00:00:00-05:00",
+   "end": "2026-11-26T23:59:00-05:00"
+  },
+  {
+   "text": "🕎 Happy Hanukkah from Yacht Rockin' Radio",
+   "kind": "holiday",
+   "start": "2026-12-04T00:00:00-05:00",
+   "end": "2026-12-12T23:59:00-05:00"
+  },
+  {
+   "text": "🎄 Merry Christmas from Capt. Hugh and the whole crew at Studio Sea",
+   "kind": "holiday",
+   "start": "2026-12-24T00:00:00-05:00",
+   "end": "2026-12-25T23:59:00-05:00"
+  },
+  {
+   "text": "🎁 Happy Boxing Day to our listeners in the UK and Canada",
+   "kind": "holiday",
+   "start": "2026-12-26T00:00:00-05:00",
+   "end": "2026-12-26T23:59:00-05:00"
+  },
+  {
+   "text": "🥂 Happy New Year's Eve · ring it in with Yacht Rockin' Radio",
+   "kind": "holiday",
+   "start": "2026-12-31T00:00:00-05:00",
+   "end": "2026-12-31T23:59:00-05:00"
+  },
+  {
+   "text": "🎉 Happy New Year from Yacht Rockin' Radio!",
+   "kind": "holiday",
+   "start": "2027-01-01T00:00:00-05:00",
+   "end": "2027-01-01T23:59:00-05:00"
+  }
+ ]
+}

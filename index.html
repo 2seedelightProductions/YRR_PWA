@@ -2663,7 +2663,7 @@ function isNonMusic(title, artist) {
 
 // Promos live on the prep site so they can change without an app update.
 // Each: { "text": "...", "start": "2026-11-12T00:00:00-05:00", "end": "..." } (dates optional)
-const PROMO_URL = 'https://prep.yachtrockinradio.com/crawl-promos.json';
+const PROMO_URL = '/crawl-promos.json';
 let _promos = [
   'Call or text us anytime · 702-YR-YACHT',
   'Join the Yacht Club Lunch Bunch · yachtclublunch.com',
@@ -2943,7 +2943,7 @@ document.getElementById('btnThumbDown')?.addEventListener('click', () => sendVot
 // ── Still Touring: crawl line from the weekly Ticketmaster sweep ──
 // Location is Netlify's approximate city/country for the connection; the
 // prep site answers per artist and nothing about the listener is stored.
-const TOUR_API = 'https://prep.yachtrockinradio.com/api/tour-near';
+const TOUR_API = '/api/tour-near';
 const _tourCache = {};
 let _tourFor = '';
 async function getTour(artist) {
