@@ -7,9 +7,32 @@
 //
 //   GET /api/tour-near?artist=Christopher%20Cross   → one artist (crawl)
 //   GET /api/tour-near?list=1                        → all touring artists, nearest first
-//   Optional &lat=..&lon=..&country=US to override the location (listener-chosen home city)
+//   Optional &lat=..&lon=..&country=US to override the location (listener's device location)
+//   Optional &zip=48226 (US) or &zip=M5V 3L9 (Canada) to look up a home ZIP/postal code
+//   Optional &radius=50|100|200 — miles that count as "near you" (default 150)
 
 const NEAR_MILES = 150;
+const ZIP_API = "https://api.zippopotam.us";
+const zipCache = new Map();
+
+// ZIP / postal code → { lat, lon, country, city }. US = 5 digits, Canada = first 3 chars (FSA).
+async function lookupZip(raw) {
+  const z = String(raw || "").toUpperCase().replace(/\s+/g, "");
+  let path;
+  if (/^\d{5}$/.test(z.slice(0, 5)) && /^\d{5}(-?\d{4})?$/.test(z)) path = "us/" + z.slice(0, 5);
+  else if (/^[A-Z]\d[A-Z](\d[A-Z]\d)?$/.test(z)) path = "ca/" + z.slice(0, 3);
+  else return null;
+  if (zipCache.has(path)) return zipCache.get(path);
+  const r = await fetch(`${ZIP_API}/${path}`);
+  if (!r.ok) { zipCache.set(path, null); return null; }
+  const d = await r.json();
+  const p = (d.places || [])[0];
+  if (!p) return null;
+  const out = { lat: +p.latitude, lon: +p.longitude, country: path.slice(0, 2).toUpperCase(),
+    city: `${p["place name"]}, ${p["state abbreviation"] || p.state || ""}`.replace(/,\s*$/, "") };
+  zipCache.set(path, out);
+  return out;
+}
 const TOUR_DATA = "https://prep.yachtrockinradio.com/tour-status.json";
 let cache = { at: 0, data: null, index: null };
 
@@ -54,7 +77,7 @@ function upcoming(t) {
   return (t.events || []).filter((e) => e.date >= today);
 }
 
-function answer(name, t, where) {
+function answer(name, t, where, radius = NEAR_MILES) {
   const ev = upcoming(t);
   if (!ev.length) return { artist: name, status: "none" };
   let nearest = null;
@@ -65,7 +88,7 @@ function answer(name, t, where) {
       if (!nearest || d < nearest.miles) nearest = { ...e, miles: Math.round(d) };
     }
   }
-  if (nearest && nearest.miles <= NEAR_MILES) {
+  if (nearest && nearest.miles <= radius) {
     return { artist: name, status: "near", show: nearest, url: nearest.url,
       line: `On tour near you · ${nearest.venue}, ${nearest.city} · ${fmtDate(nearest.date)} · Tickets` };
   }
@@ -92,21 +115,31 @@ export default async (request, context) => {
       lat: u.searchParams.get("lat") != null ? +u.searchParams.get("lat") : g.latitude ?? null,
       lon: u.searchParams.get("lon") != null ? +u.searchParams.get("lon") : g.longitude ?? null,
       country: (u.searchParams.get("country") || g.country?.code || "").toUpperCase(),
+      city: g.city || null,
     };
+    if (u.searchParams.get("lat") != null) where.city = null;   // device location: no city label
+    const zip = u.searchParams.get("zip");
+    if (zip) {
+      const z = await lookupZip(zip);
+      if (!z) return new Response(JSON.stringify({ status: "badzip", zip }), { headers });
+      Object.assign(where, z);
+    }
+    const rq = +u.searchParams.get("radius");
+    const radius = rq > 0 ? Math.min(500, Math.max(10, Math.round(rq))) : NEAR_MILES;
     const { data, index } = await load(u.origin);
 
     if (u.searchParams.get("list")) {
       const out = Object.entries(data.touring || {})
-        .map(([name, t]) => answer(name, t, where))
+        .map(([name, t]) => answer(name, t, where, radius))
         .filter((a) => a.status !== "none")
-        .sort((a, b) => (a.nearest?.miles ?? 1e9) - (b.nearest?.miles ?? 1e9));
-      return new Response(JSON.stringify({ generated: data.generated, where: { country: where.country, city: g.city || null }, shows: out }), { headers });
+        .sort((a, b) => ((a.show || a.nearest)?.miles ?? 1e9) - ((b.show || b.nearest)?.miles ?? 1e9));
+      return new Response(JSON.stringify({ generated: data.generated, where: { country: where.country, city: where.city, radius }, shows: out }), { headers });
     }
 
     const raw = u.searchParams.get("artist") || "";
     const name = index[norm(raw)] || index[norm(baseArtist(raw))];
     if (!name) return new Response(JSON.stringify({ artist: raw, status: "none" }), { headers });
-    return new Response(JSON.stringify(answer(name, data.touring[name], where)), { headers });
+    return new Response(JSON.stringify(answer(name, data.touring[name], where, radius)), { headers });
   } catch (e) {
     return new Response(JSON.stringify({ status: "error", error: String(e) }), { status: 200, headers });
   }

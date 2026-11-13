@@ -1065,6 +1065,36 @@
     .show-dist   { color:var(--gold); font-size:11px; grid-row:1 / span 2; grid-column:2; text-align:right; white-space:nowrap; }
     .shows-group { color:var(--gold); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; padding:16px 4px 4px; }
     .shows-foot  { color:var(--muted); font-size:10.5px; line-height:1.4; padding:12px 22px 0; font-family:Arial,sans-serif; }
+    .shows-ctl   { padding:10px 22px 4px; font-family:Arial,sans-serif; border-bottom:1px solid rgba(200,168,75,0.14); }
+    .shows-loc   { display:flex; gap:8px; align-items:center; }
+    .shows-loc button, .shows-zip-go {
+      flex-shrink:0; padding:8px 11px; border-radius:18px; border:1px solid rgba(200,168,75,0.35);
+      background:rgba(255,255,255,0.05); color:var(--cream); font-size:12px; font-family:Arial,sans-serif; cursor:pointer;
+    }
+    .shows-loc button.on { background:var(--gold); color:#1a1408; border-color:var(--gold); font-weight:700; }
+    .shows-zip   { flex:1; min-width:0; display:flex; gap:6px; }
+    .shows-zip input {
+      flex:1; min-width:0; padding:8px 11px; border-radius:18px; border:1px solid rgba(200,168,75,0.35);
+      background:rgba(0,0,0,0.25); color:var(--cream); font-size:16px; text-transform:uppercase;
+    }
+    .shows-zip input.on { border-color:var(--gold); }
+    .shows-radius-row { display:flex; align-items:center; gap:12px; margin-top:12px; }
+    .shows-radius-lbl { color:var(--muted); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; flex-shrink:0; }
+    .shows-radius-val { color:var(--gold); font-size:13px; font-weight:700; min-width:58px; text-align:right; }
+    .shows-radius-wrap { flex:1; }
+    input[type=range].shows-radius {
+      width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; outline:none; cursor:pointer;
+      background:linear-gradient(to right, var(--gold) 0%, var(--gold) var(--fill,50%), rgba(255,255,255,0.12) var(--fill,50%));
+    }
+    input[type=range].shows-radius::-webkit-slider-thumb {
+      -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+      background:var(--cream); border:2px solid var(--gold); box-shadow:0 2px 8px rgba(0,0,0,0.4); cursor:grab;
+    }
+    input[type=range].shows-radius::-moz-range-thumb {
+      width:22px; height:22px; border-radius:50%; background:var(--cream); border:2px solid var(--gold); cursor:grab;
+    }
+    .shows-ticks { display:flex; justify-content:space-between; color:var(--muted); font-size:10px; padding:5px 2px 0; }
+    .shows-loc-note { color:var(--muted); font-size:11px; padding-top:6px; min-height:14px; }
 
     /* ── Contact Sheet ── */
     #contact-modal {
@@ -1632,8 +1662,26 @@
       <div class="cs-sub" id="showsSub">Artists you hear on YRR, still on the road</div>
       <button class="cs-close" id="showsClose">&times;</button>
     </div>
+    <div class="shows-ctl">
+      <div class="shows-loc">
+        <button id="showsGps" type="button">📍 My location</button>
+        <form class="shows-zip" id="showsZipForm" autocomplete="off">
+          <input id="showsZip" inputmode="text" maxlength="7" placeholder="ZIP / postal" aria-label="ZIP or postal code">
+          <button class="shows-zip-go" type="submit">Go</button>
+        </form>
+      </div>
+      <div class="shows-loc-note" id="showsLocNote"></div>
+      <div class="shows-radius-row">
+        <span class="shows-radius-lbl">Within</span>
+        <div class="shows-radius-wrap">
+          <input type="range" class="shows-radius" id="showsRadius" min="0" max="2" step="1" value="1" aria-label="Search radius">
+          <div class="shows-ticks"><span>50</span><span>100</span><span>200</span></div>
+        </div>
+        <span class="shows-radius-val" id="showsRadiusVal">100 mi</span>
+      </div>
+    </div>
     <div class="shows-body" id="showsBody"><div class="shows-msg">Checking tour dates…</div></div>
-    <div class="shows-foot">Tour dates from Ticketmaster, updated weekly. Your location is approximate, from your connection, and isn't stored.</div>
+    <div class="shows-foot">Tour dates from Ticketmaster, updated weekly. Your ZIP or location and radius are saved only on this device and never stored by the station.</div>
   </div>
 </div>
 
@@ -1765,7 +1813,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.4';
+const APP_VERSION   = 'v1.5.5';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2997,13 +3045,36 @@ document.getElementById('btnThumbDown')?.addEventListener('click', () => sendVot
 // Location is Netlify's approximate city/country for the connection; the
 // prep site answers per artist and nothing about the listener is stored.
 const TOUR_API = '/api/tour-near';
-const _tourCache = {};
+const RADIUS_STOPS = [50, 100, 200];
+let _tourCache = {};
 let _tourFor = '';
+// Listener's "near me" settings, kept only in this browser:
+//   loc = { mode:'ip' } | { mode:'gps', lat, lon } | { mode:'zip', zip, label }
+function tourPrefs() {
+  let loc = { mode: 'ip' }, radius = 100;
+  try { loc = JSON.parse(localStorage.getItem('yrr-tourLoc') || 'null') || loc; } catch (_) {}
+  try { const r = +localStorage.getItem('yrr-tourRadius'); if (RADIUS_STOPS.includes(r)) radius = r; } catch (_) {}
+  return { loc, radius };
+}
+function saveTourPrefs(loc, radius) {
+  try {
+    if (loc) localStorage.setItem('yrr-tourLoc', JSON.stringify(loc));
+    if (radius) localStorage.setItem('yrr-tourRadius', String(radius));
+  } catch (_) {}
+  _tourCache = {};                       // crawl lines re-check with the new area
+}
+function tourQS() {
+  const { loc, radius } = tourPrefs();
+  let q = `radius=${radius}`;
+  if (loc.mode === 'gps' && loc.lat != null) q += `&lat=${loc.lat}&lon=${loc.lon}`;
+  if (loc.mode === 'zip' && loc.zip) q += `&zip=${encodeURIComponent(loc.zip)}`;
+  return q;
+}
 async function getTour(artist) {
   if (!artist) return null;
   if (_tourCache[artist]) return _tourCache[artist];
   try {
-    const r = await fetch(`${TOUR_API}?artist=${encodeURIComponent(artist)}`);
+    const r = await fetch(`${TOUR_API}?artist=${encodeURIComponent(artist)}&${tourQS()}`);
     const d = await r.json();
     _tourCache[artist] = d;
     return d;
@@ -3122,17 +3193,50 @@ document.getElementById('swagForm').addEventListener('submit', async e => {
 // ── Shows Near You sheet ──
 const showsModal = document.getElementById('shows-modal');
 let _showsLoaded = false;
+let _showsReq = 0;
 async function openShows() {
   closeMenu();
   showsModal.classList.add('open');
+  syncShowsControls();
   if (_showsLoaded) return;
+  loadShows();
+}
+function syncShowsControls() {
+  const { loc, radius } = tourPrefs();
+  const sl = document.getElementById('showsRadius');
+  sl.value = RADIUS_STOPS.indexOf(radius);
+  paintRadius();
+  document.getElementById('showsGps').classList.toggle('on', loc.mode === 'gps');
+  const zi = document.getElementById('showsZip');
+  zi.classList.toggle('on', loc.mode === 'zip');
+  if (loc.mode === 'zip' && document.activeElement !== zi) zi.value = loc.zip || '';
+}
+function paintRadius() {
+  const sl = document.getElementById('showsRadius');
+  sl.style.setProperty('--fill', (sl.value / 2 * 100) + '%');
+  document.getElementById('showsRadiusVal').textContent = RADIUS_STOPS[sl.value] + ' mi';
+}
+function setLocNote(t) { document.getElementById('showsLocNote').textContent = t || ''; }
+async function loadShows() {
   const body = document.getElementById('showsBody');
+  const sub  = document.getElementById('showsSub');
+  const req  = ++_showsReq;
+  const { loc, radius } = tourPrefs();
+  body.innerHTML = '<div class="shows-msg">Checking tour dates…</div>';
   try {
-    const r = await fetch(`${TOUR_API}?list=1`);
+    const r = await fetch(`${TOUR_API}?list=1&${tourQS()}`);
     const d = await r.json();
+    if (req !== _showsReq) return;                     // a newer search took over
+    if (d.status === 'badzip') {
+      body.innerHTML = '<div class="shows-msg">Couldn\'t find that ZIP or postal code. Try another, or tap 📍 My location.</div>';
+      setLocNote(''); return;
+    }
     const shows = d.shows || [];
+    const place = d.where?.city || (loc.mode === 'gps' ? 'your location' : '');
+    sub.textContent = place ? `Within ${radius} mi of ${place}` : 'Artists you hear on YRR, still on the road';
+    setLocNote(loc.mode === 'ip' ? 'Using your approximate area from your connection.' : '');
+    if (loc.mode === 'zip' && d.where?.city) { loc.label = d.where.city; saveTourPrefs(loc); }
     if (!shows.length) { body.innerHTML = '<div class="shows-msg">No tour dates right now. Check back next week.</div>'; return; }
-    if (d.where?.city) document.getElementById('showsSub').textContent = `Nearest to ${d.where.city} first`;
     const near  = shows.filter(s => s.status === 'near');
     const other = shows.filter(s => s.status !== 'near');
     const row = s => {
@@ -3147,16 +3251,55 @@ async function openShows() {
         <div class="show-where">${escHtml(where)}</div></div>`;
     };
     body.innerHTML =
-      (near.length  ? `<div class="shows-group">Near you</div>${near.map(row).join('')}` : '') +
+      (near.length  ? `<div class="shows-group">Within ${radius} miles</div>${near.map(row).join('')}`
+                    : `<div class="shows-msg">Nothing within ${radius} miles yet. Drag the bar out wider, or check who's on the road below.</div>`) +
       (other.length ? `<div class="shows-group">${near.length ? 'Further afield' : 'On the road'}</div>${other.map(row).join('')}` : '');
     body.querySelectorAll('.show-row').forEach(el => el.addEventListener('click', () => {
       if (el.dataset.url) window.open(el.dataset.url, '_blank', 'noopener');
     }));
     _showsLoaded = true;
   } catch (_) {
+    if (req !== _showsReq) return;
     body.innerHTML = '<div class="shows-msg">Couldn\'t load tour dates. Try again in a bit.</div>';
   }
 }
+// Re-check the crawl line for the song on air after the area changes
+function _retourCrawl() { const a = _tourFor; if (a) { _tourFor = ''; refreshTourLine(a); } }
+function applyTourPrefs(loc, radius) {
+  saveTourPrefs(loc, radius);
+  syncShowsControls();
+  loadShows();
+  _retourCrawl();
+}
+// Drag bar: label follows the thumb; search runs when it's let go
+document.getElementById('showsRadius').addEventListener('input', paintRadius);
+document.getElementById('showsRadius').addEventListener('change', e => {
+  applyTourPrefs(null, RADIUS_STOPS[+e.target.value]);
+});
+// 📍 My location — tap again to go back to the connection's approximate area
+document.getElementById('showsGps').addEventListener('click', () => {
+  if (tourPrefs().loc.mode === 'gps') { applyTourPrefs({ mode: 'ip' }); return; }
+  if (!navigator.geolocation) { setLocNote('Location isn\'t available on this device. Try a ZIP code.'); return; }
+  setLocNote('Finding you…');
+  navigator.geolocation.getCurrentPosition(pos => {
+    // rounded to ~1 km: plenty for "near me", nothing more precise leaves the phone
+    const lat = Math.round(pos.coords.latitude * 100) / 100;
+    const lon = Math.round(pos.coords.longitude * 100) / 100;
+    document.getElementById('showsZip').value = '';
+    applyTourPrefs({ mode: 'gps', lat, lon });
+  }, () => {
+    setLocNote('Location is off for this app. Enter a ZIP or postal code instead.');
+  }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 30 * 60 * 1000 });
+});
+// ZIP / postal code
+document.getElementById('showsZipForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const zi = document.getElementById('showsZip');
+  const zip = zi.value.trim().toUpperCase();
+  zi.blur();
+  if (!zip) { applyTourPrefs({ mode: 'ip' }); return; }      // cleared = back to automatic
+  applyTourPrefs({ mode: 'zip', zip });
+});
 function closeShows() { showsModal.classList.remove('open'); }
 document.getElementById('showsClose').addEventListener('click', closeShows);
 showsModal.addEventListener('click', e => { if (e.target === showsModal) closeShows(); });
