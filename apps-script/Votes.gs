@@ -24,6 +24,7 @@ const FIELDS = [
   ['Source',      'source'],
   ['ListenerID',  'lid'],
   ['AppVersion',  'ver'],
+  ['Approx. location', 'geo'],   // v1.5.7: city, state, country from the app site (no IP)
 ];
 
 // Non-music categories never used as a vote category

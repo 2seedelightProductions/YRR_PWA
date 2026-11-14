@@ -1813,7 +1813,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.6';
+const APP_VERSION   = 'v1.5.7';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -3032,10 +3032,11 @@ async function sendVote(vote) {
     lid:      getListenerId(),
     ver:      APP_VERSION
   });
-  fetch(`${VOTE_ENDPOINT}?${params.toString()}`, {
-    method: 'GET',
-    mode:   'no-cors'
-  }).catch(() => {}); // silent fail — don't alarm listener
+  // Through the app's own /api/vote, which adds approximate city/state for the
+  // sheet; straight to Apps Script if that hop fails. Silent either way.
+  fetch(`/api/vote?${params.toString()}`, { cache: 'no-store' })
+    .then(r => { if (!r.ok) throw 0; })
+    .catch(() => fetch(`${VOTE_ENDPOINT}?${params.toString()}`, { method: 'GET', mode: 'no-cors' }).catch(() => {}));
 }
 
 document.getElementById('btnThumbUp')  ?.addEventListener('click', () => sendVote('up'));
