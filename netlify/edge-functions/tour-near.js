@@ -33,7 +33,9 @@ async function lookupZip(raw) {
   zipCache.set(path, out);
   return out;
 }
-const TOUR_DATA = "https://prep.yachtrockinradio.com/tour-status.json";
+// The prep hub's own Netlify address: prep.yachtrockinradio.com answers server-side
+// requests with an HTML page instead of the JSON, which broke every lookup.
+const TOUR_DATA = "https://yrrprep.netlify.app/tour-status.json";
 let cache = { at: 0, data: null, index: null };
 
 function norm(s) {
@@ -62,7 +64,9 @@ async function load(origin) {
   if (cache.data && Date.now() - cache.at < 3600e3) return cache;
   const r = await fetch(TOUR_DATA);
   if (!r.ok) throw new Error("tour data " + r.status);
-  const data = await r.json();
+  const text = await r.text();
+  if (!text.trimStart().startsWith("{")) throw new Error("tour data is not JSON (" + (r.headers.get("content-type") || "?") + ") from " + r.url);
+  const data = JSON.parse(text);
   const index = {};
   for (const [name, t] of Object.entries(data.touring || {})) {
     index[norm(name)] = name;
