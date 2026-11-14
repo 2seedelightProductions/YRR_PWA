@@ -1813,7 +1813,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.5';
+const APP_VERSION   = 'v1.5.6';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2814,7 +2814,7 @@ function renderBreakUI() {
   const amzBtn = document.getElementById('amzBtn');
   if (amzBtn) amzBtn.style.display = 'none';
   voteBarHide();
-  _tourFor = ''; setTourLine(null);
+  stopSongRotation(); _tourFor = ''; setTourLine(null);
   if (_inBreak) return;
   _inBreak = true;
   trackTitle.textContent  = "Yacht Rockin' Radio";
@@ -3118,29 +3118,56 @@ async function deepDiveFor(title, artist) {
   return '🔎 Deep Dive · a track you won\'t hear on other stations';
 }
 
+// While a touring artist plays, the strip keeps its usual lines (birthday,
+// Your 45's Are 50, Deep Dive or station promos) and drops the Ticketmaster
+// line in for one 20-second slot each minute: at 0:20, 1:20, 2:20…
+const SONG_SLOT_MS = 20000;
+const TOUR_EVERY   = 3;                     // 3 slots × 20 s = once a minute
+let _songIv = null, _songSlot = 0, _songTour = null, _songFixed = null;
+function stopSongRotation() {
+  if (_songIv) { clearInterval(_songIv); _songIv = null; }
+  _songTour = null; _songFixed = null;
+}
+function songTick() {
+  if (_swagOpen || _inBreak) return;        // giveaway or break owns the strip
+  const slot = _songSlot++;
+  if (_songTour && slot % TOUR_EVERY === 1) {
+    document.getElementById('npIdle').style.display = 'none';
+    setTourLine(_songTour);
+    layoutNowPlayingStrip();
+  } else if (_songFixed) {
+    showExtraLine(_songFixed, null);
+  } else {
+    showPromo();                            // next station promo in the rotation
+  }
+}
+
 async function refreshTourLine(artist) {
+  stopSongRotation();
   _tourFor = artist;
   setTourLine(null);
   if (_swagOpen) { showSwagLine(); return; }              // giveaway window beats everything
-  const bday = birthdayFor(artist);
-  if (bday) { showExtraLine(bday.text, null); return; }   // a birthday beats a tour plug
   const title = document.getElementById('npTitle').textContent;
-  const y = countdownFor(title, artist);
-  if (y) { showExtraLine(y.text, null); return; }
+  // The song's own line: birthday, then this week's countdown, then Deep Dive
+  let fixed = birthdayFor(artist)?.text || countdownFor(title, artist)?.text || null;
+  if (fixed) showExtraLine(fixed, null);                  // show it right away
   const d = await getTour(artist);
   if (_tourFor !== artist) return;          // song changed while we waited
-  if (d && d.line && d.status !== 'none' && d.status !== 'error') {
-    if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
-    document.getElementById('npIdle').style.display = 'none';
-    setTourLine(d);
-    layoutNowPlayingStrip();
-  } else {
+  if (!fixed) {
     await loadLibrary();
-    const dd = await deepDiveFor(title, artist);
+    fixed = await deepDiveFor(title, artist);
     if (_tourFor !== artist) return;
-    if (dd) showExtraLine(dd, null);
-    else startPromos();                     // nothing special: rotate station promos
   }
+  const tour = (d && d.line && d.status !== 'none' && d.status !== 'error') ? d : null;
+  if (!tour) {                              // not touring: same as before
+    if (fixed) showExtraLine(fixed, null);
+    else startPromos();                     // nothing special: rotate station promos
+    return;
+  }
+  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  _songTour = tour; _songFixed = fixed; _songSlot = 0;
+  songTick();
+  _songIv = setInterval(songTick, SONG_SLOT_MS);
 }
 
 // ── Swag giveaway: 3 short unannounced windows a day (server decides) ──
@@ -3320,7 +3347,7 @@ function updateNowPlayingStrip(title, artist) {
     idle.style.display = ''; label.style.display = npTitle.style.display =
     dot1.style.display = dot2.style.display = npArtist.style.display = 'none';
     inner.classList.remove('crawl');
-    _tourFor = ''; setTourLine(null);
+    stopSongRotation(); _tourFor = ''; setTourLine(null);
     return;
   }
 
