@@ -1,5 +1,5 @@
 {
- "_how": "Messages the YRR app shows in its crawl. Rotates every 20 seconds when nothing song-specific is showing. Optional filters: start/end (ISO time), days (0=Sun…6=Sat, Eastern), hours [from,to) in Eastern 24h. \"artist\" lines (birthdays) show while that artist plays that day. \"kind\":\"y4550\" lines need artist+title and show while that song plays.",
+ "_how": "Messages the YRR app shows in its crawl. Rotates every 20 seconds when nothing song-specific is showing. Optional filters: start/end (ISO time), days (0=Sun…6=Sat, Eastern), hours [from,to) in Eastern 24h. \"artist\" lines (birthdays) show while that artist plays that day. \"kind\":\"y4550\" lines need artist+title and show while that song plays. Optional \"url\" makes the line tappable. \"hours\" can be fractional: 11.75 = 11:45a.",
  "promos": [
   {
    "text": "Ensign Williams is off today for a job interview · wish him luck!",
@@ -10,7 +10,8 @@
    "text": "Call or text us anytime · 702-YR-YACHT"
   },
   {
-   "text": "Join the Yacht Club Lunch Bunch · yachtclublunch.com"
+   "text": "Join the Yacht Club Lunch Bunch · yachtclublunch.com",
+   "url": "https://yachtclublunch.com"
   },
   {
    "text": "Your 45's Are 50 · Saturdays 8–10a ET"
@@ -211,7 +212,8 @@
     12,
     13
    ],
-   "kind": "show"
+   "kind": "show",
+   "url": "https://yachtclublunch.com"
   },
   {
    "text": "It's New Music Monday · found treasures from new artists",
@@ -257,6 +259,34 @@
    "hours": [
     10,
     14
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "🎱 Music Lover Bingo is live · tap to get your card",
+   "url": "https://yachtclublunch.com/bingo",
+   "days": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "hours": [
+    11.75,
+    13.25
+   ],
+   "kind": "show"
+  },
+  {
+   "text": "🎱 Music Lover Bingo is live during Yacht Club Brunch · tap to get your card",
+   "url": "https://yachtclublunch.com/bingo",
+   "days": [
+    0
+   ],
+   "hours": [
+    9.75,
+    14.25
    ],
    "kind": "show"
   },

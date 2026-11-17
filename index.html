@@ -829,6 +829,8 @@
     .np-tour   { color:var(--gold); font-size:12px; font-family:Arial,sans-serif; font-weight:600; padding-left:22px; cursor:pointer; }
     .np-tour.no-link { cursor:default; }
     .np-idle   { color:var(--muted); font-size:11px; font-family:Arial,sans-serif; padding:0 14px; letter-spacing:0.04em; }
+    .np-idle.np-link { color:var(--gold); cursor:pointer; }
+    .np-idle.np-link::after { content:' ›'; }
 
     /* ── Controls dock ── */
     .controls-dock {
@@ -1813,7 +1815,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.7';
+const APP_VERSION   = 'v1.5.8';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2755,12 +2757,32 @@ let _promos = [
   'Shows Near You · see who\'s on tour · tap ☰',
   'Love the app? Share it with a friend · tap ☰',
 ];
-let _promoIdx = 0, _promoIv = null, _inBreak = false, _livePromos = [], _allPromos = [];
-// Eastern day (0=Sun) and hour, for promos with "days"/"hours"
+let _promoIv = null, _inBreak = false, _livePromos = [], _allPromos = [];
+// Shuffled deck: every promo shows once per lap in random order, a fresh
+// shuffle each lap, and never the same line twice in a row across laps.
+let _promoDeck = [], _promoDeckKey = '', _lastPromo = '';
+function nextPromo(list) {
+  const key = list.map(p => p.text).join('\n');
+  if (key !== _promoDeckKey || !_promoDeck.length) {
+    _promoDeckKey = key;
+    _promoDeck = list.slice();
+    for (let i = _promoDeck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [_promoDeck[i], _promoDeck[j]] = [_promoDeck[j], _promoDeck[i]];
+    }
+    if (_promoDeck.length > 1 && _promoDeck[_promoDeck.length - 1].text === _lastPromo)
+      _promoDeck.unshift(_promoDeck.pop());   // deck is popped from the end
+  }
+  const p = _promoDeck.pop();
+  _lastPromo = p.text;
+  return p;
+}
+// Eastern day (0=Sun) and hour, for promos with "days"/"hours".
+// hour is fractional (12.25 = 12:15p) so "hours" can be [11.75, 13.25].
 function easternNow() {
-  const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', hourCycle: 'h23' });
+  const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
   const p = Object.fromEntries(f.formatToParts(new Date()).map(x => [x.type, x.value]));
-  return { day: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday), hour: +p.hour };
+  return { day: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday), hour: +p.hour + (+p.minute) / 60 };
 }
 function activePromos() {
   const now = new Date(), et = easternNow();
@@ -2779,7 +2801,7 @@ async function loadPromos() {
     _allPromos = d.promos || [];
     _livePromos = live;
     const rot = activePromos().filter(p => p.kind !== 'y4550');
-    if (rot.length) _promos = rot.map(p => p.text);
+    if (rot.length) _promos = rot;
   } catch (_) { /* keep defaults */ }
 }
 loadPromos();
@@ -2792,12 +2814,21 @@ function showPromo() {
   ['npLabel','npDot','npTitle','npDot2','npArtist','npTour'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
-  const rot = _allPromos.length ? activePromos().filter(p => p.kind !== 'y4550').map(p => p.text) : _promos;
-  const list = rot.length ? rot : _promos;
-  idle.textContent = list[_promoIdx++ % list.length];
+  const rot = _allPromos.length ? activePromos().filter(p => p.kind !== 'y4550') : _promos;
+  const list = (rot.length ? rot : _promos).map(p => typeof p === 'string' ? { text: p } : p);
+  const promo = nextPromo(list);
+  idle.textContent = promo.text;
+  setIdleLink(promo.url);
   idle.style.display = '';
   inner.classList.remove('crawl');
   layoutNowPlayingStrip();
+}
+// Promos with a "url" are tappable (opens in a new tab)
+function setIdleLink(url) {
+  const idle = document.getElementById('npIdle');
+  if (!idle) return;
+  idle.classList.toggle('np-link', !!url);
+  idle.onclick = url ? () => window.open(url, '_blank', 'noopener') : null;
 }
 function startPromos() {
   if (_promoIv) return;
@@ -2808,6 +2839,7 @@ function stopPromos() {
   if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
   const idle = document.getElementById('npIdle');
   if (idle) idle.textContent = "The Best Yacht, Rock and Retro 24/7!";
+  setIdleLink(null);
 }
 
 function renderBreakUI() {
