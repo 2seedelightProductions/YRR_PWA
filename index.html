@@ -1815,7 +1815,7 @@ const STREAM_URL    = 'https://streaming.live365.com/a78484';
 const META_URL      = 'https://api.live365.com/station/a78484';
 const META_INTERVAL    = 12000;
 const METADATA_DELAY_MS = 45000; // ms to hold metadata before display — tune range 30000–60000
-const APP_VERSION   = 'v1.5.8';
+const APP_VERSION   = 'v1.5.9';
 const VOTE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzjSRhTlDhUPcEvnHFQWntK5jd5pGPiI4WI-ULOelVTt0-PjcpOdaat3FbSux4dCS2Vgg/exec';
 
 // ── State ────────────────────────────────────────────────────────
@@ -2807,10 +2807,10 @@ async function loadPromos() {
 loadPromos();
 setInterval(loadPromos, 15 * 60 * 1000);
 
-function showPromo() {
+function showPromo(onDone) {
   const idle  = document.getElementById('npIdle');
   const inner = document.getElementById('nowplayingInner');
-  if (!idle || !_promos.length) return;
+  if (!idle || !_promos.length) { if (onDone) onDone(0); return; }
   ['npLabel','npDot','npTitle','npDot2','npArtist','npTour'].forEach(id => {
     const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
@@ -2821,7 +2821,7 @@ function showPromo() {
   setIdleLink(promo.url);
   idle.style.display = '';
   inner.classList.remove('crawl');
-  layoutNowPlayingStrip();
+  layoutNowPlayingStrip(onDone);
 }
 // Promos with a "url" are tappable (opens in a new tab)
 function setIdleLink(url) {
@@ -2830,13 +2830,24 @@ function setIdleLink(url) {
   idle.classList.toggle('np-link', !!url);
   idle.onclick = url ? () => window.open(url, '_blank', 'noopener') : null;
 }
+const PROMO_HOLD_MS = 20000;               // a promo that fits on screen stays this long
+let _promoGen = 0;
+function stopPromoTimer() {
+  _promoGen++;                              // cancels a pass still being measured
+  if (_promoIv) { clearTimeout(_promoIv); _promoIv = null; }
+}
 function startPromos() {
   if (_promoIv) return;
-  showPromo();
-  _promoIv = setInterval(showPromo, 20000);
+  const gen = ++_promoGen;
+  const loop = () => showPromo(ms => {
+    if (gen !== _promoGen) return;
+    _promoIv = setTimeout(loop, ms || PROMO_HOLD_MS);
+  });
+  _promoIv = -1;                            // running (first pass being measured)
+  loop();
 }
 function stopPromos() {
-  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  stopPromoTimer();
   const idle = document.getElementById('npIdle');
   if (idle) idle.textContent = "The Best Yacht, Rock and Retro 24/7!";
   setIdleLink(null);
@@ -3153,25 +3164,29 @@ async function deepDiveFor(title, artist) {
 
 // While a touring artist plays, the strip keeps its usual lines (birthday,
 // Your 45's Are 50, Deep Dive or station promos) and drops the Ticketmaster
-// line in for one 20-second slot each minute: at 0:20, 1:20, 2:20…
+// line in for every third slot. A slot is one full pass of a line that
+// crawls, or 20 seconds for a line that fits on screen.
 const SONG_SLOT_MS = 20000;
-const TOUR_EVERY   = 3;                     // 3 slots × 20 s = once a minute
-let _songIv = null, _songSlot = 0, _songTour = null, _songFixed = null;
+const TOUR_EVERY   = 3;
+let _songIv = null, _songSlot = 0, _songTour = null, _songFixed = null, _songGen = 0;
 function stopSongRotation() {
-  if (_songIv) { clearInterval(_songIv); _songIv = null; }
+  _songGen++;
+  if (_songIv) { clearTimeout(_songIv); _songIv = null; }
   _songTour = null; _songFixed = null;
 }
 function songTick() {
-  if (_swagOpen || _inBreak) return;        // giveaway or break owns the strip
+  const gen  = _songGen;
+  const next = ms => { if (gen === _songGen) _songIv = setTimeout(songTick, ms || SONG_SLOT_MS); };
+  if (_swagOpen || _inBreak) { next(SONG_SLOT_MS); return; }   // giveaway or break owns the strip
   const slot = _songSlot++;
   if (_songTour && slot % TOUR_EVERY === 1) {
     document.getElementById('npIdle').style.display = 'none';
     setTourLine(_songTour);
-    layoutNowPlayingStrip();
+    layoutNowPlayingStrip(next);
   } else if (_songFixed) {
-    showExtraLine(_songFixed, null);
+    showExtraLine(_songFixed, null, next);
   } else {
-    showPromo();                            // next station promo in the rotation
+    showPromo(next);                        // next station promo in the rotation
   }
 }
 
@@ -3197,16 +3212,15 @@ async function refreshTourLine(artist) {
     else startPromos();                     // nothing special: rotate station promos
     return;
   }
-  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  stopPromoTimer();
   _songTour = tour; _songFixed = fixed; _songSlot = 0;
   songTick();
-  _songIv = setInterval(songTick, SONG_SLOT_MS);
 }
 
 // ── Swag giveaway: 3 short unannounced windows a day (server decides) ──
 let _swagOpen = false;
 function showSwagLine() {
-  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  stopPromoTimer();
   document.getElementById('npIdle').style.display = 'none';
   const el = document.getElementById('npTour');
   el.textContent = '🎁 Tap HERE to win Yacht Rockin\' Radio swag!';
@@ -3395,29 +3409,39 @@ function updateNowPlayingStrip(title, artist) {
   layoutNowPlayingStrip();
 }
 
-function showExtraLine(text, url) {
+function showExtraLine(text, url, onDone) {
   // One extra line for this song; pauses the promo rotation
-  if (_promoIv) { clearInterval(_promoIv); _promoIv = null; }
+  stopPromoTimer();
   const idle = document.getElementById('npIdle');
   if (idle) idle.style.display = 'none';
   setTourLine({ line: text, url, status: 'x' }, true);
-  layoutNowPlayingStrip();
+  layoutNowPlayingStrip(onDone);
 }
 
-function layoutNowPlayingStrip() {
+// onDone(ms): ms = time for one full pass of the crawl, or 0 if the line fits
+function layoutNowPlayingStrip(onDone) {
   const inner = document.getElementById('nowplayingInner');
-  if (!inner) return;
+  if (!inner) { if (onDone) onDone(0); return; }
   // Decide crawl vs static after paint
   requestAnimationFrame(() => {
     const stripW = document.getElementById('nowplayingStrip').clientWidth;
-    const textW  = inner.scrollWidth;
     inner.classList.remove('crawl');
+    // Width of the text itself (scrollWidth never reports less than the strip,
+    // which made every line crawl)
+    const textW = Array.from(inner.children)
+      .filter(el => el.style.display !== 'none')
+      .reduce((w, el) => w + el.getBoundingClientRect().width, 0);
+    let passMs = 0;
     if (textW > stripW - 20) {
-      // Crawl speed: ~80px/s
-      const dur = Math.max(10, Math.round(textW / 80));
-      inner.style.setProperty('--crawl-dur', `${dur}s`);
+      // The crawl travels from the right edge of the screen (100vw) until the
+      // text is fully off the left, so one pass covers screen width + text.
+      // ~80px/s on that whole distance.
+      const dur = Math.max(6, (window.innerWidth + textW) / 80);
+      inner.style.setProperty('--crawl-dur', `${dur.toFixed(2)}s`);
       inner.classList.add('crawl');
+      passMs = Math.round(dur * 1000);
     }
+    if (onDone) onDone(passMs);
   });
 }
 
